@@ -4,12 +4,12 @@ info:
   description: K6 Load Test API
   version: 1.0.0
 servers:
-  - url: http://localhost:{port}/<hoge>/
+  - url: http://localhost:{port}/jester/
     description: dev
     variables:
       port:
         default: '8080'
-  - url: https://api.<domain-name>/<hoge>/
+  - url: https://api.<domain-name>/jester/
     description: stg
 security:
   - bearerAuth: []
@@ -18,8 +18,8 @@ paths:
     get:
       tags:
         - healthcheck
-      summary: Checks the health of the API
-      description: Returns a simple status object indicating the API is up and running.
+      summary: Checks the health of API
+      description: APIが正常に動作しているかを確認します。
       operationId: healthcheck
       responses:
         '200':

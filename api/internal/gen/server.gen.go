@@ -15,7 +15,7 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Checks the health of the API
+	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(c *gin.Context)
 	// Create a new user
@@ -224,7 +224,7 @@ func (response GetMe500Response) VisitGetMeResponse(w http.ResponseWriter) error
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
-	// Checks the health of the API
+	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(ctx context.Context, request HealthcheckRequestObject) (HealthcheckResponseObject, error)
 	// Create a new user
