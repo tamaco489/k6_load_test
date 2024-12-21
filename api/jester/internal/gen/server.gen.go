@@ -17,12 +17,18 @@ type ServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(c *gin.Context)
-	// Create a new user
+	// Create new user
 	// (POST /v1/users)
 	CreateUser(c *gin.Context)
 	// Get user information about myself
 	// (GET /v1/users/me)
 	GetMe(c *gin.Context)
+	// Create user profile
+	// (POST /v1/users/profiles)
+	CreateProfile(c *gin.Context)
+	// Get profile information about myself
+	// (GET /v1/users/profiles/me)
+	GetProfileMe(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -77,6 +83,36 @@ func (siw *ServerInterfaceWrapper) GetMe(c *gin.Context) {
 	siw.Handler.GetMe(c)
 }
 
+// CreateProfile operation middleware
+func (siw *ServerInterfaceWrapper) CreateProfile(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateProfile(c)
+}
+
+// GetProfileMe operation middleware
+func (siw *ServerInterfaceWrapper) GetProfileMe(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetProfileMe(c)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -107,12 +143,17 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/healthcheck", wrapper.Healthcheck)
 	router.POST(options.BaseURL+"/v1/users", wrapper.CreateUser)
 	router.GET(options.BaseURL+"/v1/users/me", wrapper.GetMe)
+	router.POST(options.BaseURL+"/v1/users/profiles", wrapper.CreateProfile)
+	router.GET(options.BaseURL+"/v1/users/profiles/me", wrapper.GetProfileMe)
 }
 
 type AlreadyExistsResponse struct {
 }
 
 type BadRequestResponse struct {
+}
+
+type ForbiddenResponse struct {
 }
 
 type InternalServerErrorResponse struct {
@@ -191,7 +232,7 @@ type GetMeResponseObject interface {
 	VisitGetMeResponse(w http.ResponseWriter) error
 }
 
-type GetMe200JSONResponse GetMeResponse
+type GetMe200JSONResponse Me
 
 func (response GetMe200JSONResponse) VisitGetMeResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -221,17 +262,112 @@ func (response GetMe500Response) VisitGetMeResponse(w http.ResponseWriter) error
 	return nil
 }
 
+type CreateProfileRequestObject struct {
+	Body *CreateProfileJSONRequestBody
+}
+
+type CreateProfileResponseObject interface {
+	VisitCreateProfileResponse(w http.ResponseWriter) error
+}
+
+type CreateProfile201JSONResponse Profile
+
+func (response CreateProfile201JSONResponse) VisitCreateProfileResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateProfile400Response = BadRequestResponse
+
+func (response CreateProfile400Response) VisitCreateProfileResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type CreateProfile401Response = UnauthorizedResponse
+
+func (response CreateProfile401Response) VisitCreateProfileResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type CreateProfile403Response = ForbiddenResponse
+
+func (response CreateProfile403Response) VisitCreateProfileResponse(w http.ResponseWriter) error {
+	w.WriteHeader(403)
+	return nil
+}
+
+type CreateProfile409Response = AlreadyExistsResponse
+
+func (response CreateProfile409Response) VisitCreateProfileResponse(w http.ResponseWriter) error {
+	w.WriteHeader(409)
+	return nil
+}
+
+type CreateProfile500Response = InternalServerErrorResponse
+
+func (response CreateProfile500Response) VisitCreateProfileResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GetProfileMeRequestObject struct {
+}
+
+type GetProfileMeResponseObject interface {
+	VisitGetProfileMeResponse(w http.ResponseWriter) error
+}
+
+type GetProfileMe200JSONResponse Profile
+
+func (response GetProfileMe200JSONResponse) VisitGetProfileMeResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetProfileMe401Response = UnauthorizedResponse
+
+func (response GetProfileMe401Response) VisitGetProfileMeResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetProfileMe404Response = NotFoundResponse
+
+func (response GetProfileMe404Response) VisitGetProfileMeResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetProfileMe500Response = InternalServerErrorResponse
+
+func (response GetProfileMe500Response) VisitGetProfileMeResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(ctx *gin.Context, request HealthcheckRequestObject) (HealthcheckResponseObject, error)
-	// Create a new user
+	// Create new user
 	// (POST /v1/users)
 	CreateUser(ctx *gin.Context, request CreateUserRequestObject) (CreateUserResponseObject, error)
 	// Get user information about myself
 	// (GET /v1/users/me)
 	GetMe(ctx *gin.Context, request GetMeRequestObject) (GetMeResponseObject, error)
+	// Create user profile
+	// (POST /v1/users/profiles)
+	CreateProfile(ctx *gin.Context, request CreateProfileRequestObject) (CreateProfileResponseObject, error)
+	// Get profile information about myself
+	// (GET /v1/users/profiles/me)
+	GetProfileMe(ctx *gin.Context, request GetProfileMeRequestObject) (GetProfileMeResponseObject, error)
 }
 
 type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
@@ -314,6 +450,64 @@ func (sh *strictHandler) GetMe(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(GetMeResponseObject); ok {
 		if err := validResponse.VisitGetMeResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateProfile operation middleware
+func (sh *strictHandler) CreateProfile(ctx *gin.Context) {
+	var request CreateProfileRequestObject
+
+	var body CreateProfileJSONRequestBody
+	if err := ctx.ShouldBind(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateProfile(ctx, request.(CreateProfileRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateProfile")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CreateProfileResponseObject); ok {
+		if err := validResponse.VisitCreateProfileResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetProfileMe operation middleware
+func (sh *strictHandler) GetProfileMe(ctx *gin.Context) {
+	var request GetProfileMeRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetProfileMe(ctx, request.(GetProfileMeRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetProfileMe")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetProfileMeResponseObject); ok {
+		if err := validResponse.VisitGetProfileMeResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
