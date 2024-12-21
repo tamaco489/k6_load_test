@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.options = void 0;
 exports.default = default_1;
-var http_1 = require("k6/http");
+var http = require("k6/http");
 var k6_1 = require("k6");
 exports.options = {
     // vus: 10,
@@ -25,7 +25,7 @@ function default_1() {
             'Content-Type': 'application/json',
         },
     };
-    var res = http_1.default.get(url, params);
+    var res = http.get(url, params);
     (0, k6_1.check)(res, {
         'status is 200': function (r) { return r.status === 200; },
     });
