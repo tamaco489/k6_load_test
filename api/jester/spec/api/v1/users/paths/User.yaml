@@ -2,7 +2,7 @@ post:
   tags:
     - v1
     - users
-  summary: Create a new user
+  summary: Create new user
   description: ユーザを新規作成します。
   operationId: createUser
   responses:

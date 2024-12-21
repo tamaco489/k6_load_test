@@ -43,3 +43,7 @@ paths:
     $ref: './api/v1/users/paths/User.yaml'
   /v1/users/me:
     $ref: './api/v1/users/paths/Me.yaml'
+  /v1/users/profiles:
+    $ref: './api/v1/users/paths/Profile.yaml'
+  /v1/users/profiles/me:
+    $ref: './api/v1/users/paths/ProfileMe.yaml'
