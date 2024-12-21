@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@types/k6": "^0.54.2",
+    "typescript": "^5.7.2"
+  }
+}

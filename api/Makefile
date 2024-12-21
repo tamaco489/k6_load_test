@@ -1,9 +1,12 @@
 # =================================================================
 # K6
 # =================================================================
-.PHONY: k6-run k6-end k6-down
+.PHONY: k6-compile k6-run k6-end k6-down
 
-k6-run:
+k6-compile:
+	cd ./_tools/k6/ && npx tsc ./src/scripts/main.ts --outDir ./dist && cd -
+
+k6-run: k6-compile
 	docker-compose up k6
 
 k6-end:
