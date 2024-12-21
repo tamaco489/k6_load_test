@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tamaco489/k6_load_test/api/jester/internal/controller"
+	"github.com/tamaco489/k6_load_test/api/jester/controller"
 )
 
 func main() {
