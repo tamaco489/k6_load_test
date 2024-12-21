@@ -1,0 +1,129 @@
+openapi: 3.0.0
+info:
+  title: K6 Load Test API
+  description: K6 Load Test API
+  version: 1.0.0
+servers:
+  - url: http://localhost:{port}/<hoge>/
+    description: dev
+    variables:
+      port:
+        default: '8080'
+  - url: https://api.<domain-name>/<hoge>/
+    description: stg
+security:
+  - bearerAuth: []
+paths:
+  /healthcheck:
+    get:
+      tags:
+        - healthcheck
+      summary: Checks the health of the API
+      description: Returns a simple status object indicating the API is up and running.
+      operationId: healthcheck
+      responses:
+        '200':
+          description: API is up and running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+      security: []
+  /v1/users:
+    post:
+      tags:
+        - v1
+        - users
+      summary: Create a new user
+      description: ユーザを新規作成します。
+      operationId: createUser
+      responses:
+        '201':
+          description: ユーザの新規登録が成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/AlreadyExists'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v1/users/me:
+    get:
+      tags:
+        - v1
+        - users
+      summary: Get user information about myself
+      description: 自身のユーザー情報を取得する
+      operationId: getMe
+      responses:
+        '200':
+          description: Successfully retrieved information about myself.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    HealthCheck:
+      title: HealthCheck
+      type: object
+      description: HealthCheckのレスポンス
+      required:
+        - message
+      properties:
+        message:
+          description: メッセージ。通常はok
+          type: string
+      example:
+        message: ok
+    CreateUserResponse:
+      title: CreateUser
+      type: object
+      description: ユーザ新規登録APIのレスポンス
+      required:
+        - user_id
+      properties:
+        user_id:
+          description: user_idを返却します。
+          type: integer
+          format: int64
+      example:
+        user_id: 10001001
+    GetMeResponse:
+      type: object
+      properties:
+        user_id:
+          description: 登録した自身のユーザーIDを返却
+          type: integer
+          format: int64
+      required:
+        - user_id
+      example:
+        user_id: 10001001
+  responses:
+    BadRequest:
+      description: Bad Request
+    Unauthorized:
+      description: Unauthorized
+    AlreadyExists:
+      description: Already Exists
+    InternalServerError:
+      description: Internal Server Error
+    NotFound:
+      description: Not Found
