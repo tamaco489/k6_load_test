@@ -20,11 +20,19 @@ bundle-openapi:
 
 
 # =================================================================
-# run api server
+# start api server for local
 # =================================================================
 .PHONY: lint deps build run
+
 lint:
 	golangci-lint run --timeout 3m
 
 deps:
-	go mod download && go mod tidy
+	go mod download
+	go mod tidy
+
+build: deps
+	go build -o build/main cmd/main.go
+
+run: build
+	./build/main
