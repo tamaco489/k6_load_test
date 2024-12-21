@@ -20,7 +20,7 @@ bundle-openapi:
 
 
 # =================================================================
-# start api server for local
+# for CI
 # =================================================================
 .PHONY: lint deps build run
 
@@ -28,11 +28,24 @@ lint:
 	golangci-lint run --timeout 3m
 
 deps:
-	go mod download
-	go mod tidy
+	go mod download && go mod tidy
 
 build: deps
-	go build -o build/main cmd/main.go
+	go build -o build/jester_api cmd/main.go
 
 run: build
-	./build/main
+	./build/jester_api
+
+
+# =================================================================
+# for Container
+# =================================================================
+.PHONY: up down logs
+up:
+	docker compose up -d jester-api
+
+down:
+	docker compose down jester-api
+
+logs:
+	docker compose logs -f jester-api
