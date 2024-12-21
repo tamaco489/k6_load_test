@@ -19,7 +19,7 @@ k6-down: k6-end
 # =================================================================
 # API Request
 # =================================================================
-.PHONY: healthcheck create-user get-me
+.PHONY: healthcheck create-user get-me create-profile get-profile-me
 
 healthcheck:
 	curl -i -X 'GET' \
@@ -36,3 +36,15 @@ get-me:
 	curl -i -X 'GET' \
 		'http://localhost:8080/jester/v1/users/me' \
 		-H 'accept: application/json'
+
+create-profile:
+	curl -sX 'POST' \
+		'http://localhost:8080/jester/v1/users/profiles' \
+		-H 'accept: application/json' \
+		-H 'Content-Type: application/json' \
+		-d '{"name": {"first_name": "世一","last_name": "潔","first_name_roman": "Yoichi","last_name_roman": "Isagi"}, "address": { "region": "関東", "zip_code": "150-8377", "prefecture": "東京都", "city": "渋谷区", "street": "宇田川町", "other": "15番1号"}, "birthdate": "2000-01-01", "image_url": "https://example"}' | jq .
+
+get-profile-me:
+	curl -sX 'GET' \
+		'http://localhost:8080/jester/v1/users/profiles/me' \
+		-H 'accept: application/json' | jq .
