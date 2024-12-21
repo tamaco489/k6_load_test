@@ -28,8 +28,8 @@ paths:
     get:
       tags:
         - healthcheck
-      summary: Checks the health of the API
-      description: Returns a simple status object indicating the API is up and running.
+      summary: Checks the health of API
+      description: APIが正常に動作しているかを確認します。
       operationId: healthcheck
       responses:
         '200':
