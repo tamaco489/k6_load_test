@@ -4,7 +4,6 @@
 package gen
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -226,13 +225,13 @@ func (response GetMe500Response) VisitGetMeResponse(w http.ResponseWriter) error
 type StrictServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
-	Healthcheck(ctx context.Context, request HealthcheckRequestObject) (HealthcheckResponseObject, error)
+	Healthcheck(ctx *gin.Context, request HealthcheckRequestObject) (HealthcheckResponseObject, error)
 	// Create a new user
 	// (POST /v1/users)
-	CreateUser(ctx context.Context, request CreateUserRequestObject) (CreateUserResponseObject, error)
+	CreateUser(ctx *gin.Context, request CreateUserRequestObject) (CreateUserResponseObject, error)
 	// Get user information about myself
 	// (GET /v1/users/me)
-	GetMe(ctx context.Context, request GetMeRequestObject) (GetMeResponseObject, error)
+	GetMe(ctx *gin.Context, request GetMeRequestObject) (GetMeResponseObject, error)
 }
 
 type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
