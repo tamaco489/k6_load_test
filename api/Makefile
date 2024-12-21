@@ -13,7 +13,7 @@ install-tools:
 .PHONY: gen-api bundle-openapi
 gen-api: bundle-openapi
 	oapi-codegen -package gen -generate types -o internal/gen/types.gen.go ./spec/openapi.yaml
-	oapi-codegen -package gen -generate strict-server,gin -o internal/gen/server.gen.go ./spec/openapi.yaml
+	oapi-codegen -package gen -generate strict-server,gin -templates ./spec/templates -o internal/gen/server.gen.go ./spec/openapi.yaml
 
 bundle-openapi:
 	redocly bundle ./spec/openapi_base.yaml --output ./spec/openapi.yaml
