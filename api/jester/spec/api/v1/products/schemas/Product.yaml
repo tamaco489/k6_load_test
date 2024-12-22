@@ -1,7 +1,7 @@
 type: object
 required:
-  - product_id
-  - product_name
+  - id
+  - name
   - category_id
   - category_name
   - description
@@ -14,12 +14,12 @@ required:
   - vip_only
   - image_url
 properties:
-  product_id:
+  id:
     type: integer
     format: int32
     description: 商品ID
     example: 10001001
-  product_name:
+  name:
     type: string
     description: 商品名
     example: "プレミアムコーヒー"
@@ -71,4 +71,4 @@ properties:
   image_url:
     type: string
     description: 商品イメージのURL
-    example: "https://example.com/images/product101.jpg"
+    example: "https://example.com/images/10001001/product.jpg"

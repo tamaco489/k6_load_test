@@ -88,17 +88,17 @@ type Product struct {
 	// DiscountedPrice 割引後の価格（税込、日本円）
 	DiscountedPrice float32 `json:"discounted_price"`
 
+	// Id 商品ID
+	Id int32 `json:"id"`
+
 	// ImageUrl 商品イメージのURL
 	ImageUrl string `json:"image_url"`
 
+	// Name 商品名
+	Name string `json:"name"`
+
 	// Price 定価（税込、日本円）
 	Price float32 `json:"price"`
-
-	// ProductId 商品ID
-	ProductId int32 `json:"product_id"`
-
-	// ProductName 商品名
-	ProductName string `json:"product_name"`
 
 	// StockQuantity 在庫数
 	StockQuantity int32 `json:"stock_quantity"`
@@ -107,8 +107,59 @@ type Product struct {
 	VipOnly bool `json:"vip_only"`
 }
 
-// Products 商品情報のリスト
-type Products = []Product
+// Products defines model for Products.
+type Products struct {
+	Metadata ProductNextCursor `json:"metadata"`
+	Products []GetProducts     `json:"products"`
+}
+
+// ProductNextCursor defines model for .
+type ProductNextCursor struct {
+	// NextCursor 次ページへのカーソル
+	NextCursor string `json:"next_cursor"`
+}
+
+// GetProducts defines model for .
+type GetProducts struct {
+	// CategoryId カテゴリID
+	CategoryId int32 `json:"category_id"`
+
+	// CategoryName カテゴリ名
+	CategoryName string `json:"category_name"`
+
+	// Description 商品の説明
+	Description string `json:"description"`
+
+	// DiscountFlag 割引キャンペーン対象か否か
+	DiscountFlag bool `json:"discount_flag"`
+
+	// DiscountName 割引キャンペーン名称
+	DiscountName string `json:"discount_name"`
+
+	// DiscountRate 割引率（%）
+	DiscountRate int32 `json:"discount_rate"`
+
+	// DiscountedPrice 割引後の価格（税込、日本円）
+	DiscountedPrice float32 `json:"discounted_price"`
+
+	// Id 商品ID
+	Id int32 `json:"id"`
+
+	// ImageUrl 商品イメージのURL
+	ImageUrl string `json:"image_url"`
+
+	// Name 商品名
+	Name string `json:"name"`
+
+	// Price 定価（税込、日本円）
+	Price float32 `json:"price"`
+
+	// StockQuantity 在庫数
+	StockQuantity int32 `json:"stock_quantity"`
+
+	// VipOnly VIP限定の商品か否か
+	VipOnly bool `json:"vip_only"`
+}
 
 // Profile defines model for Profile.
 type Profile struct {
