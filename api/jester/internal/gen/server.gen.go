@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/oapi-codegen/runtime"
 	strictgin "github.com/oapi-codegen/runtime/strictmiddleware/gin"
 )
 
@@ -17,6 +18,12 @@ type ServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(c *gin.Context)
+	// Get list of products
+	// (GET /v1/products)
+	GetProducts(c *gin.Context, params GetProductsParams)
+	// Get product details
+	// (GET /v1/products/{productID})
+	GetProductByID(c *gin.Context, productID int64)
 	// Create new user
 	// (POST /v1/users)
 	CreateUser(c *gin.Context)
@@ -51,6 +58,68 @@ func (siw *ServerInterfaceWrapper) Healthcheck(c *gin.Context) {
 	}
 
 	siw.Handler.Healthcheck(c)
+}
+
+// GetProducts operation middleware
+func (siw *ServerInterfaceWrapper) GetProducts(c *gin.Context) {
+
+	var err error
+
+	c.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetProductsParams
+
+	// ------------- Optional query parameter "cursor" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "cursor", c.Request.URL.Query(), &params.Cursor)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter cursor: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetProducts(c, params)
+}
+
+// GetProductByID operation middleware
+func (siw *ServerInterfaceWrapper) GetProductByID(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "productID" -------------
+	var productID int64
+
+	err = runtime.BindStyledParameter("simple", false, "productID", c.Param("productID"), &productID)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter productID: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetProductByID(c, productID)
 }
 
 // CreateUser operation middleware
@@ -141,6 +210,8 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/healthcheck", wrapper.Healthcheck)
+	router.GET(options.BaseURL+"/v1/products", wrapper.GetProducts)
+	router.GET(options.BaseURL+"/v1/products/:productID", wrapper.GetProductByID)
 	router.POST(options.BaseURL+"/v1/users", wrapper.CreateUser)
 	router.GET(options.BaseURL+"/v1/users/me", wrapper.GetMe)
 	router.POST(options.BaseURL+"/v1/users/profiles", wrapper.CreateProfile)
@@ -179,6 +250,68 @@ func (response Healthcheck200JSONResponse) VisitHealthcheckResponse(w http.Respo
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type GetProductsRequestObject struct {
+	Params GetProductsParams
+}
+
+type GetProductsResponseObject interface {
+	VisitGetProductsResponse(w http.ResponseWriter) error
+}
+
+type GetProducts200JSONResponse Products
+
+func (response GetProducts200JSONResponse) VisitGetProductsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetProductByIDRequestObject struct {
+	ProductID int64 `json:"productID"`
+}
+
+type GetProductByIDResponseObject interface {
+	VisitGetProductByIDResponse(w http.ResponseWriter) error
+}
+
+type GetProductByID200JSONResponse Product
+
+func (response GetProductByID200JSONResponse) VisitGetProductByIDResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetProductByID400Response = BadRequestResponse
+
+func (response GetProductByID400Response) VisitGetProductByIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GetProductByID401Response = UnauthorizedResponse
+
+func (response GetProductByID401Response) VisitGetProductByIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetProductByID404Response = NotFoundResponse
+
+func (response GetProductByID404Response) VisitGetProductByIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetProductByID500Response = InternalServerErrorResponse
+
+func (response GetProductByID500Response) VisitGetProductByIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
 }
 
 type CreateUserRequestObject struct {
@@ -356,6 +489,12 @@ type StrictServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(ctx *gin.Context, request HealthcheckRequestObject) (HealthcheckResponseObject, error)
+	// Get list of products
+	// (GET /v1/products)
+	GetProducts(ctx *gin.Context, request GetProductsRequestObject) (GetProductsResponseObject, error)
+	// Get product details
+	// (GET /v1/products/{productID})
+	GetProductByID(ctx *gin.Context, request GetProductByIDRequestObject) (GetProductByIDResponseObject, error)
 	// Create new user
 	// (POST /v1/users)
 	CreateUser(ctx *gin.Context, request CreateUserRequestObject) (CreateUserResponseObject, error)
@@ -400,6 +539,60 @@ func (sh *strictHandler) Healthcheck(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(HealthcheckResponseObject); ok {
 		if err := validResponse.VisitHealthcheckResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetProducts operation middleware
+func (sh *strictHandler) GetProducts(ctx *gin.Context, params GetProductsParams) {
+	var request GetProductsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetProducts(ctx, request.(GetProductsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetProducts")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetProductsResponseObject); ok {
+		if err := validResponse.VisitGetProductsResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetProductByID operation middleware
+func (sh *strictHandler) GetProductByID(ctx *gin.Context, productID int64) {
+	var request GetProductByIDRequestObject
+
+	request.ProductID = productID
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetProductByID(ctx, request.(GetProductByIDRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetProductByID")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetProductByIDResponseObject); ok {
+		if err := validResponse.VisitGetProductByIDResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

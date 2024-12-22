@@ -65,6 +65,102 @@ type Name struct {
 	LastNameRoman string `json:"last_name_roman"`
 }
 
+// Product defines model for Product.
+type Product struct {
+	// CategoryId カテゴリID
+	CategoryId int32 `json:"category_id"`
+
+	// CategoryName カテゴリ名
+	CategoryName string `json:"category_name"`
+
+	// Description 商品の説明
+	Description string `json:"description"`
+
+	// DiscountFlag 割引キャンペーン対象か否か
+	DiscountFlag bool `json:"discount_flag"`
+
+	// DiscountName 割引キャンペーン名称
+	DiscountName string `json:"discount_name"`
+
+	// DiscountRate 割引率（%）
+	DiscountRate int32 `json:"discount_rate"`
+
+	// DiscountedPrice 割引後の価格（税込、日本円）
+	DiscountedPrice float32 `json:"discounted_price"`
+
+	// Id 商品ID
+	Id int32 `json:"id"`
+
+	// ImageUrl 商品イメージのURL
+	ImageUrl string `json:"image_url"`
+
+	// Name 商品名
+	Name string `json:"name"`
+
+	// Price 定価（税込、日本円）
+	Price float32 `json:"price"`
+
+	// StockQuantity 在庫数
+	StockQuantity int32 `json:"stock_quantity"`
+
+	// VipOnly VIP限定の商品か否か
+	VipOnly bool `json:"vip_only"`
+}
+
+// Products defines model for Products.
+type Products struct {
+	Metadata ProductNextCursor `json:"metadata"`
+	Products []GetProducts     `json:"products"`
+}
+
+// ProductNextCursor defines model for .
+type ProductNextCursor struct {
+	// NextCursor 次ページへのカーソル
+	NextCursor string `json:"next_cursor"`
+}
+
+// GetProducts defines model for .
+type GetProducts struct {
+	// CategoryId カテゴリID
+	CategoryId int32 `json:"category_id"`
+
+	// CategoryName カテゴリ名
+	CategoryName string `json:"category_name"`
+
+	// Description 商品の説明
+	Description string `json:"description"`
+
+	// DiscountFlag 割引キャンペーン対象か否か
+	DiscountFlag bool `json:"discount_flag"`
+
+	// DiscountName 割引キャンペーン名称
+	DiscountName string `json:"discount_name"`
+
+	// DiscountRate 割引率（%）
+	DiscountRate int32 `json:"discount_rate"`
+
+	// DiscountedPrice 割引後の価格（税込、日本円）
+	DiscountedPrice float32 `json:"discounted_price"`
+
+	// Id 商品ID
+	Id int32 `json:"id"`
+
+	// ImageUrl 商品イメージのURL
+	ImageUrl string `json:"image_url"`
+
+	// Name 商品名
+	Name string `json:"name"`
+
+	// Price 定価（税込、日本円）
+	Price float32 `json:"price"`
+
+	// StockQuantity 在庫数
+	StockQuantity int32 `json:"stock_quantity"`
+
+	// VipOnly VIP限定の商品か否か
+	VipOnly bool `json:"vip_only"`
+}
+
 // Profile defines model for Profile.
 type Profile struct {
 	Address Addresses `json:"address"`
@@ -75,6 +171,17 @@ type Profile struct {
 	// ImageUrl ユーザーのプロフィール画像のURL
 	ImageUrl string `json:"image_url"`
 	Name     Name   `json:"name"`
+}
+
+// GetProductsParams defines parameters for GetProducts.
+type GetProductsParams struct {
+	// Cursor 次のページの商品情報一覧を取得するためのカーソル。
+	// カーソルは商品IDをbase64でエンコードした文字列を指定する
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+
+	// Limit 取得する商品情報数を指定。
+	// デフォルトは10。1度に最大20件まで取得可能
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // CreateProfileJSONRequestBody defines body for CreateProfile for application/json ContentType.
