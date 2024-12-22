@@ -557,6 +557,7 @@ components:
           description: 商品イメージのURL
           example: https://example.com/images/10001001/product.jpg
     GetCreditCards:
+      title: CreditCardList
       type: array
       items:
         type: object
@@ -572,6 +573,7 @@ components:
             type: boolean
             description: デフォルトのクレジットカードかどうか
             example: true
+        x-go-type-name: CreditCardList
     CreateCreditCard:
       type: object
       required:

@@ -49,7 +49,10 @@ type CreateUserResponse struct {
 }
 
 // GetCreditCards defines model for GetCreditCards.
-type GetCreditCards = []struct {
+type GetCreditCards = []CreditCardList
+
+// CreditCardList defines model for .
+type CreditCardList struct {
 	// IsDefault デフォルトのクレジットカードかどうか
 	IsDefault bool `json:"is_default"`
 
