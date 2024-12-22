@@ -1,0 +1,31 @@
+type: array
+items:
+  $ref: './Product.yaml'
+description: 商品情報のリスト
+example:
+  - product_id: 10001001
+    product_name: "プレミアムコーヒー"
+    category_id: 10
+    category_name: "飲料"
+    description: "香り高いアラビカ種のコーヒーです。"
+    price: 500.0
+    discount_flag: true
+    discount_name: "2024年クリスマスキャンペーン"
+    discount_rate: 20
+    discounted_price: 400.0
+    stock_quantity: 100
+    vip_only: false
+    image_url: "https://example.com/images/10001001/product.jpg"
+  - product_id: 10001002
+    product_name: "紅茶"
+    category_id: 11
+    category_name: "飲料"
+    description: "芳醇な香りのダージリンティーです。"
+    price: 300.0
+    discount_flag: false
+    discount_name: ""
+    discount_rate: 0
+    discounted_price: 300.0
+    stock_quantity: 5
+    vip_only: false
+    image_url: "https://example.com/images/10001002/product.jpg"
