@@ -19,14 +19,15 @@ k6-down: k6-end
 # =================================================================
 # API Request
 # =================================================================
+# 生存確認API
 .PHONY: healthcheck
-
 healthcheck:
 	curl -i -X 'GET' \
 		'http://localhost:8080/jester/healthcheck' \
 		-H 'accept: application/json'
 
-.PHONY: create-user get-me
+# ユーザ系API
+.PHONY: create-user get-me create-profile get-profile-me
 create-user:
 	curl -i -X 'POST' \
 		'http://localhost:8080/jester/v1/users' \
@@ -38,7 +39,6 @@ get-me:
 		'http://localhost:8080/jester/v1/users/me' \
 		-H 'accept: application/json'
 
-.PHONY: create-profile get-profile-me
 create-profile:
 	curl -sX 'POST' \
 		'http://localhost:8080/jester/v1/users/profiles' \
@@ -51,6 +51,7 @@ get-profile-me:
 		'http://localhost:8080/jester/v1/users/profiles/me' \
 		-H 'accept: application/json' | jq .
 
+# 商品系API
 .PHONY: get-products get-product-by-id
 get-products:
 	curl -sX 'GET' \
@@ -61,3 +62,22 @@ get-product-by-id:
 	curl -sX 'GET' \
 		'http://localhost:8080/jester/v1/products/20001001' \
 		-H 'accept: application/json' | jq .
+
+# 決済系API
+.PHONY: get-credit-cards create-credit-card delete-credit-card
+get-credit-cards:
+	curl -sX 'GET' \
+		'http://localhost:8080/jester/v1/payments/cards' \
+		-H 'accept: application/json' | jq .
+
+create-credit-card:
+	curl -i -sX 'POST' \
+		'http://localhost:8080/jester/v1/payments/cards' \
+		-H 'accept: */*' \
+		-H 'Content-Type: application/json' \
+		-d '{"token": "9f9213b2-9687-6910-d2ec-3a247582be2d", "is_default": true}'
+
+delete-credit-card:
+	curl -i -sX 'DELETE' \
+		'http://localhost:8080/jester/v1/payments/cards' \
+		-H 'accept: */*'
