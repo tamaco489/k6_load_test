@@ -19,13 +19,14 @@ k6-down: k6-end
 # =================================================================
 # API Request
 # =================================================================
-.PHONY: healthcheck create-user get-me create-profile get-profile-me
+.PHONY: healthcheck
 
 healthcheck:
 	curl -i -X 'GET' \
 		'http://localhost:8080/jester/healthcheck' \
 		-H 'accept: application/json'
 
+.PHONY: create-user get-me
 create-user:
 	curl -i -X 'POST' \
 		'http://localhost:8080/jester/v1/users' \
@@ -37,6 +38,7 @@ get-me:
 		'http://localhost:8080/jester/v1/users/me' \
 		-H 'accept: application/json'
 
+.PHONY: create-profile get-profile-me
 create-profile:
 	curl -sX 'POST' \
 		'http://localhost:8080/jester/v1/users/profiles' \
@@ -47,4 +49,15 @@ create-profile:
 get-profile-me:
 	curl -sX 'GET' \
 		'http://localhost:8080/jester/v1/users/profiles/me' \
+		-H 'accept: application/json' | jq .
+
+.PHONY: get-products get-product-by-id
+get-products:
+	curl -sX 'GET' \
+		'http://localhost:8080/jester/v1/products?cursor=MjAwMDEwMDE%3D&limit=10' \
+		-H 'accept: application/json' | jq .
+
+get-product-by-id:
+	curl -sX 'GET' \
+		'http://localhost:8080/jester/v1/products/20001001' \
 		-H 'accept: application/json' | jq .
