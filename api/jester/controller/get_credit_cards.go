@@ -7,5 +7,20 @@ import (
 
 func (c *Controllers) GetCreditCards(ctx *gin.Context, request gen.GetCreditCardsRequestObject) (gen.GetCreditCardsResponseObject, error) {
 
-	return gen.GetCreditCards200JSONResponse{}, nil
+	creditCards := []gen.CreditCardList{
+		{
+			IsDefault:        true,
+			MaskedCardNumber: "******123",
+		},
+		{
+			IsDefault:        false,
+			MaskedCardNumber: "******567",
+		},
+		{
+			IsDefault:        false,
+			MaskedCardNumber: "******890",
+		},
+	}
+
+	return gen.GetCreditCards200JSONResponse(creditCards), nil
 }
