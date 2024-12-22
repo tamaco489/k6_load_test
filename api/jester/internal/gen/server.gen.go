@@ -21,9 +21,9 @@ type ServerInterface interface {
 	// Delete credit card
 	// (DELETE /v1/payments/cards)
 	DeleteCreditCard(c *gin.Context)
-	// Get credit card details
+	// Get credit card list
 	// (GET /v1/payments/cards)
-	GetCreditCard(c *gin.Context)
+	GetCreditCards(c *gin.Context)
 	// Create new credit card
 	// (POST /v1/payments/cards)
 	CreateCreditCard(c *gin.Context)
@@ -84,8 +84,8 @@ func (siw *ServerInterfaceWrapper) DeleteCreditCard(c *gin.Context) {
 	siw.Handler.DeleteCreditCard(c)
 }
 
-// GetCreditCard operation middleware
-func (siw *ServerInterfaceWrapper) GetCreditCard(c *gin.Context) {
+// GetCreditCards operation middleware
+func (siw *ServerInterfaceWrapper) GetCreditCards(c *gin.Context) {
 
 	c.Set(BearerAuthScopes, []string{})
 
@@ -96,7 +96,7 @@ func (siw *ServerInterfaceWrapper) GetCreditCard(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetCreditCard(c)
+	siw.Handler.GetCreditCards(c)
 }
 
 // CreateCreditCard operation middleware
@@ -265,7 +265,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 
 	router.GET(options.BaseURL+"/healthcheck", wrapper.Healthcheck)
 	router.DELETE(options.BaseURL+"/v1/payments/cards", wrapper.DeleteCreditCard)
-	router.GET(options.BaseURL+"/v1/payments/cards", wrapper.GetCreditCard)
+	router.GET(options.BaseURL+"/v1/payments/cards", wrapper.GetCreditCards)
 	router.POST(options.BaseURL+"/v1/payments/cards", wrapper.CreateCreditCard)
 	router.GET(options.BaseURL+"/v1/products", wrapper.GetProducts)
 	router.GET(options.BaseURL+"/v1/products/:productID", wrapper.GetProductByID)
@@ -352,39 +352,39 @@ func (response DeleteCreditCard500Response) VisitDeleteCreditCardResponse(w http
 	return nil
 }
 
-type GetCreditCardRequestObject struct {
+type GetCreditCardsRequestObject struct {
 }
 
-type GetCreditCardResponseObject interface {
-	VisitGetCreditCardResponse(w http.ResponseWriter) error
+type GetCreditCardsResponseObject interface {
+	VisitGetCreditCardsResponse(w http.ResponseWriter) error
 }
 
-type GetCreditCard200JSONResponse GetCreditCard
+type GetCreditCards200JSONResponse GetCreditCards
 
-func (response GetCreditCard200JSONResponse) VisitGetCreditCardResponse(w http.ResponseWriter) error {
+func (response GetCreditCards200JSONResponse) VisitGetCreditCardsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetCreditCard400Response = BadRequestResponse
+type GetCreditCards400Response = BadRequestResponse
 
-func (response GetCreditCard400Response) VisitGetCreditCardResponse(w http.ResponseWriter) error {
+func (response GetCreditCards400Response) VisitGetCreditCardsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(400)
 	return nil
 }
 
-type GetCreditCard401Response = UnauthorizedResponse
+type GetCreditCards401Response = UnauthorizedResponse
 
-func (response GetCreditCard401Response) VisitGetCreditCardResponse(w http.ResponseWriter) error {
+func (response GetCreditCards401Response) VisitGetCreditCardsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
 	return nil
 }
 
-type GetCreditCard500Response = InternalServerErrorResponse
+type GetCreditCards500Response = InternalServerErrorResponse
 
-func (response GetCreditCard500Response) VisitGetCreditCardResponse(w http.ResponseWriter) error {
+func (response GetCreditCards500Response) VisitGetCreditCardsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
@@ -666,9 +666,9 @@ type StrictServerInterface interface {
 	// Delete credit card
 	// (DELETE /v1/payments/cards)
 	DeleteCreditCard(ctx *gin.Context, request DeleteCreditCardRequestObject) (DeleteCreditCardResponseObject, error)
-	// Get credit card details
+	// Get credit card list
 	// (GET /v1/payments/cards)
-	GetCreditCard(ctx *gin.Context, request GetCreditCardRequestObject) (GetCreditCardResponseObject, error)
+	GetCreditCards(ctx *gin.Context, request GetCreditCardsRequestObject) (GetCreditCardsResponseObject, error)
 	// Create new credit card
 	// (POST /v1/payments/cards)
 	CreateCreditCard(ctx *gin.Context, request CreateCreditCardRequestObject) (CreateCreditCardResponseObject, error)
@@ -754,15 +754,15 @@ func (sh *strictHandler) DeleteCreditCard(ctx *gin.Context) {
 	}
 }
 
-// GetCreditCard operation middleware
-func (sh *strictHandler) GetCreditCard(ctx *gin.Context) {
-	var request GetCreditCardRequestObject
+// GetCreditCards operation middleware
+func (sh *strictHandler) GetCreditCards(ctx *gin.Context) {
+	var request GetCreditCardsRequestObject
 
 	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GetCreditCard(ctx, request.(GetCreditCardRequestObject))
+		return sh.ssi.GetCreditCards(ctx, request.(GetCreditCardsRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetCreditCard")
+		handler = middleware(handler, "GetCreditCards")
 	}
 
 	response, err := handler(ctx, request)
@@ -770,8 +770,8 @@ func (sh *strictHandler) GetCreditCard(ctx *gin.Context) {
 	if err != nil {
 		ctx.Error(err)
 		ctx.Status(http.StatusInternalServerError)
-	} else if validResponse, ok := response.(GetCreditCardResponseObject); ok {
-		if err := validResponse.VisitGetCreditCardResponse(ctx.Writer); err != nil {
+	} else if validResponse, ok := response.(GetCreditCardsResponseObject); ok {
+		if err := validResponse.VisitGetCreditCardsResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

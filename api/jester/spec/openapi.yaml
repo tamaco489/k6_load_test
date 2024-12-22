@@ -203,16 +203,16 @@ paths:
       tags:
         - v1
         - payments/cards
-      summary: Get credit card details
-      description: 登録されたクレジットカード情報を取得します。
-      operationId: getCreditCard
+      summary: Get credit card list
+      description: 登録されたクレジットカード情報一覧を取得します。
+      operationId: getCreditCards
       responses:
         '200':
-          description: クレジットカード情報の取得に成功しました。
+          description: クレジットカード情報一覧の取得に成功しました。
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetCreditCard'
+                $ref: '#/components/schemas/GetCreditCards'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -556,7 +556,7 @@ components:
           type: string
           description: 商品イメージのURL
           example: https://example.com/images/10001001/product.jpg
-    GetCreditCard:
+    GetCreditCards:
       type: array
       items:
         type: object

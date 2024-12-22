@@ -48,8 +48,8 @@ type CreateUserResponse struct {
 	UserId int64 `json:"user_id"`
 }
 
-// GetCreditCard defines model for GetCreditCard.
-type GetCreditCard = []struct {
+// GetCreditCards defines model for GetCreditCards.
+type GetCreditCards = []struct {
 	// IsDefault デフォルトのクレジットカードかどうか
 	IsDefault *bool `json:"is_default,omitempty"`
 

@@ -2,16 +2,16 @@ get:
   tags:
     - v1
     - payments/cards
-  summary: Get credit card details
-  description: 登録されたクレジットカード情報を取得します。
-  operationId: getCreditCard
+  summary: Get credit card list
+  description: 登録されたクレジットカード情報一覧を取得します。
+  operationId: getCreditCards
   responses:
     '200':
-      description: クレジットカード情報の取得に成功しました。
+      description: クレジットカード情報一覧の取得に成功しました。
       content:
         application/json:
           schema:
-            $ref: '../schemas/GetCreditCard.yaml'
+            $ref: '../schemas/GetCreditCards.yaml'
     '400':
       $ref: '../../../responses/BadRequest.yaml'
     '401':
