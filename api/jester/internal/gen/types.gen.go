@@ -51,10 +51,10 @@ type CreateUserResponse struct {
 // GetCreditCards defines model for GetCreditCards.
 type GetCreditCards = []struct {
 	// IsDefault デフォルトのクレジットカードかどうか
-	IsDefault *bool `json:"is_default,omitempty"`
+	IsDefault bool `json:"is_default"`
 
 	// MaskedCardNumber マスキングされたカード番号（***** + 下3桁）
-	MaskedCardNumber *string `json:"masked_card_number,omitempty"`
+	MaskedCardNumber string `json:"masked_card_number"`
 }
 
 // HealthCheck HealthCheckのレスポンス

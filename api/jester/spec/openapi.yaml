@@ -560,6 +560,9 @@ components:
       type: array
       items:
         type: object
+        required:
+          - masked_card_number
+          - is_default
         properties:
           masked_card_number:
             type: string
