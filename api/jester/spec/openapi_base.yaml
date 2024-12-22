@@ -55,3 +55,7 @@ paths:
     $ref: './api/v1/products/paths/Products.yaml'
   /v1/products/{productID}:
     $ref: './api/v1/products/paths/Product.yaml'
+
+  # 決済系API
+  /v1/payments/cards:
+    $ref: './api/v1/payments/paths/CreditCard.yaml'

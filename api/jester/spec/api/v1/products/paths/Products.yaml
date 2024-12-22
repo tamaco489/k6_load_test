@@ -10,7 +10,7 @@ get:
       in: query
       description: |
         次のページの商品情報一覧を取得するためのカーソル。
-        カーソルは商品IDをbase64でエンコードした文字列を指定する
+        カーソルは商品IDをbase64でエンコードした文字列を指定する。
       required: false
       schema:
         type: string
@@ -20,7 +20,7 @@ get:
       in: query
       description: |
         取得する商品情報数を指定。
-        デフォルトは10。1度に最大20件まで取得可能
+        デフォルトは10。1度に最大20件まで取得可能。
       required: false
       schema:
         type: integer

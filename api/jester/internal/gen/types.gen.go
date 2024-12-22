@@ -32,10 +32,29 @@ type Addresses struct {
 	ZipCode string `json:"zip_code"`
 }
 
+// CreateCreditCard defines model for CreateCreditCard.
+type CreateCreditCard struct {
+	// IsDefault 登録するカードをデフォルトとして設定するか
+	IsDefault bool `json:"is_default"`
+
+	// Token フロントエンドで登録済みのカード情報に紐付く一意のトークン。
+	// セキュアに生成され、カード番号などの生データを含まない形式。
+	Token string `json:"token"`
+}
+
 // CreateUserResponse ユーザ新規登録APIのレスポンス
 type CreateUserResponse struct {
 	// UserId user_idを返却します。
 	UserId int64 `json:"user_id"`
+}
+
+// GetCreditCard defines model for GetCreditCard.
+type GetCreditCard = []struct {
+	// IsDefault デフォルトのクレジットカードかどうか
+	IsDefault *bool `json:"is_default,omitempty"`
+
+	// MaskedCardNumber マスキングされたカード番号（***** + 下3桁）
+	MaskedCardNumber *string `json:"masked_card_number,omitempty"`
 }
 
 // HealthCheck HealthCheckのレスポンス
@@ -176,13 +195,16 @@ type Profile struct {
 // GetProductsParams defines parameters for GetProducts.
 type GetProductsParams struct {
 	// Cursor 次のページの商品情報一覧を取得するためのカーソル。
-	// カーソルは商品IDをbase64でエンコードした文字列を指定する
+	// カーソルは商品IDをbase64でエンコードした文字列を指定する。
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 
 	// Limit 取得する商品情報数を指定。
-	// デフォルトは10。1度に最大20件まで取得可能
+	// デフォルトは10。1度に最大20件まで取得可能。
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
 }
+
+// CreateCreditCardJSONRequestBody defines body for CreateCreditCard for application/json ContentType.
+type CreateCreditCardJSONRequestBody = CreateCreditCard
 
 // CreateProfileJSONRequestBody defines body for CreateProfile for application/json ContentType.
 type CreateProfileJSONRequestBody = Profile

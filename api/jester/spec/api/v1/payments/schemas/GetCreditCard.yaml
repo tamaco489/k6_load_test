@@ -1,0 +1,12 @@
+type: array
+items:
+  type: object
+  properties:
+    masked_card_number:
+      type: string
+      description: マスキングされたカード番号（***** + 下3桁）
+      example: "*****123"
+    is_default:
+      type: boolean
+      description: デフォルトのクレジットカードかどうか
+      example: true

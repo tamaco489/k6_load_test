@@ -18,6 +18,15 @@ type ServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(c *gin.Context)
+	// Delete credit card
+	// (DELETE /v1/payments/cards)
+	DeleteCreditCard(c *gin.Context)
+	// Get credit card details
+	// (GET /v1/payments/cards)
+	GetCreditCard(c *gin.Context)
+	// Create new credit card
+	// (POST /v1/payments/cards)
+	CreateCreditCard(c *gin.Context)
 	// Get list of products
 	// (GET /v1/products)
 	GetProducts(c *gin.Context, params GetProductsParams)
@@ -58,6 +67,51 @@ func (siw *ServerInterfaceWrapper) Healthcheck(c *gin.Context) {
 	}
 
 	siw.Handler.Healthcheck(c)
+}
+
+// DeleteCreditCard operation middleware
+func (siw *ServerInterfaceWrapper) DeleteCreditCard(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteCreditCard(c)
+}
+
+// GetCreditCard operation middleware
+func (siw *ServerInterfaceWrapper) GetCreditCard(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetCreditCard(c)
+}
+
+// CreateCreditCard operation middleware
+func (siw *ServerInterfaceWrapper) CreateCreditCard(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateCreditCard(c)
 }
 
 // GetProducts operation middleware
@@ -210,6 +264,9 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/healthcheck", wrapper.Healthcheck)
+	router.DELETE(options.BaseURL+"/v1/payments/cards", wrapper.DeleteCreditCard)
+	router.GET(options.BaseURL+"/v1/payments/cards", wrapper.GetCreditCard)
+	router.POST(options.BaseURL+"/v1/payments/cards", wrapper.CreateCreditCard)
 	router.GET(options.BaseURL+"/v1/products", wrapper.GetProducts)
 	router.GET(options.BaseURL+"/v1/products/:productID", wrapper.GetProductByID)
 	router.POST(options.BaseURL+"/v1/users", wrapper.CreateUser)
@@ -250,6 +307,123 @@ func (response Healthcheck200JSONResponse) VisitHealthcheckResponse(w http.Respo
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteCreditCardRequestObject struct {
+}
+
+type DeleteCreditCardResponseObject interface {
+	VisitDeleteCreditCardResponse(w http.ResponseWriter) error
+}
+
+type DeleteCreditCard204Response struct {
+}
+
+func (response DeleteCreditCard204Response) VisitDeleteCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteCreditCard400Response = BadRequestResponse
+
+func (response DeleteCreditCard400Response) VisitDeleteCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type DeleteCreditCard401Response = UnauthorizedResponse
+
+func (response DeleteCreditCard401Response) VisitDeleteCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type DeleteCreditCard404Response = NotFoundResponse
+
+func (response DeleteCreditCard404Response) VisitDeleteCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type DeleteCreditCard500Response = InternalServerErrorResponse
+
+func (response DeleteCreditCard500Response) VisitDeleteCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GetCreditCardRequestObject struct {
+}
+
+type GetCreditCardResponseObject interface {
+	VisitGetCreditCardResponse(w http.ResponseWriter) error
+}
+
+type GetCreditCard200JSONResponse GetCreditCard
+
+func (response GetCreditCard200JSONResponse) VisitGetCreditCardResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetCreditCard400Response = BadRequestResponse
+
+func (response GetCreditCard400Response) VisitGetCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GetCreditCard401Response = UnauthorizedResponse
+
+func (response GetCreditCard401Response) VisitGetCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetCreditCard500Response = InternalServerErrorResponse
+
+func (response GetCreditCard500Response) VisitGetCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type CreateCreditCardRequestObject struct {
+	Body *CreateCreditCardJSONRequestBody
+}
+
+type CreateCreditCardResponseObject interface {
+	VisitCreateCreditCardResponse(w http.ResponseWriter) error
+}
+
+type CreateCreditCard204Response struct {
+}
+
+func (response CreateCreditCard204Response) VisitCreateCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type CreateCreditCard400Response = BadRequestResponse
+
+func (response CreateCreditCard400Response) VisitCreateCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type CreateCreditCard401Response = UnauthorizedResponse
+
+func (response CreateCreditCard401Response) VisitCreateCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type CreateCreditCard500Response = InternalServerErrorResponse
+
+func (response CreateCreditCard500Response) VisitCreateCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
 }
 
 type GetProductsRequestObject struct {
@@ -489,6 +663,15 @@ type StrictServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(ctx *gin.Context, request HealthcheckRequestObject) (HealthcheckResponseObject, error)
+	// Delete credit card
+	// (DELETE /v1/payments/cards)
+	DeleteCreditCard(ctx *gin.Context, request DeleteCreditCardRequestObject) (DeleteCreditCardResponseObject, error)
+	// Get credit card details
+	// (GET /v1/payments/cards)
+	GetCreditCard(ctx *gin.Context, request GetCreditCardRequestObject) (GetCreditCardResponseObject, error)
+	// Create new credit card
+	// (POST /v1/payments/cards)
+	CreateCreditCard(ctx *gin.Context, request CreateCreditCardRequestObject) (CreateCreditCardResponseObject, error)
 	// Get list of products
 	// (GET /v1/products)
 	GetProducts(ctx *gin.Context, request GetProductsRequestObject) (GetProductsResponseObject, error)
@@ -539,6 +722,89 @@ func (sh *strictHandler) Healthcheck(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(HealthcheckResponseObject); ok {
 		if err := validResponse.VisitHealthcheckResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteCreditCard operation middleware
+func (sh *strictHandler) DeleteCreditCard(ctx *gin.Context) {
+	var request DeleteCreditCardRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteCreditCard(ctx, request.(DeleteCreditCardRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteCreditCard")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(DeleteCreditCardResponseObject); ok {
+		if err := validResponse.VisitDeleteCreditCardResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetCreditCard operation middleware
+func (sh *strictHandler) GetCreditCard(ctx *gin.Context) {
+	var request GetCreditCardRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetCreditCard(ctx, request.(GetCreditCardRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetCreditCard")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetCreditCardResponseObject); ok {
+		if err := validResponse.VisitGetCreditCardResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateCreditCard operation middleware
+func (sh *strictHandler) CreateCreditCard(ctx *gin.Context) {
+	var request CreateCreditCardRequestObject
+
+	var body CreateCreditCardJSONRequestBody
+	if err := ctx.ShouldBind(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateCreditCard(ctx, request.(CreateCreditCardRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateCreditCard")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CreateCreditCardResponseObject); ok {
+		if err := validResponse.VisitCreateCreditCardResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
