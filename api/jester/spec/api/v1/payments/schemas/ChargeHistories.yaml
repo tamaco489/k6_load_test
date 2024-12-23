@@ -65,11 +65,11 @@ components:
                 type: array
                 description: 注文IDに紐づく商品のリスト
                 items:
-                  $ref: '#/components/schemas/GetChargeHistoriesResponseProducts'
-            x-go-type-name: ChargeHistoriesItem  # 一意な名前に変更
+                  $ref: '#/components/schemas/GetChargeHistoriesProducts'
+            x-go-type-name: GetChargeHistories
 
-    GetChargeHistoriesResponseProducts:
-      title: GetChargeHistoriesResponseProducts
+    GetChargeHistoriesProducts:
+      title: GetChargeHistoriesProducts
       type: object
       description: 注文IDに紐づく商品のリスト
       required:
@@ -95,5 +95,4 @@ components:
           description: 商品1つあたりの価格
           format: float
           example: 1500.0
-      # x-go-type-name: ChargeHistoriesProduct
 

@@ -37,14 +37,14 @@ type Addresses struct {
 // ChargeHistories 注文履歴のレスポンスオブジェクト
 type ChargeHistories struct {
 	// Histories 注文履歴のリスト
-	Histories []ChargeHistoriesItem `json:"histories"`
+	Histories []GetChargeHistories `json:"histories"`
 
 	// Metadata ページネーションに関連するメタデータ
 	Metadata ChargeHistoriesLimitOffset `json:"metadata"`
 }
 
-// ChargeHistoriesItem defines model for .
-type ChargeHistoriesItem struct {
+// GetChargeHistories defines model for .
+type GetChargeHistories struct {
 	// ChargeAmount 請求金額
 	ChargeAmount float32 `json:"charge_amount"`
 
@@ -55,7 +55,7 @@ type ChargeHistoriesItem struct {
 	ChargeId string `json:"charge_id"`
 
 	// Products 注文IDに紐づく商品のリスト
-	Products []GetChargeHistoriesResponseProducts `json:"products"`
+	Products []GetChargeHistoriesProducts `json:"products"`
 }
 
 // ChargeHistoriesLimitOffset ページネーションに関連するメタデータ
@@ -95,8 +95,8 @@ type CreateUserResponse struct {
 	UserId int64 `json:"user_id"`
 }
 
-// GetChargeHistoriesResponseProducts 注文IDに紐づく商品のリスト
-type GetChargeHistoriesResponseProducts struct {
+// GetChargeHistoriesProducts 注文IDに紐づく商品のリスト
+type GetChargeHistoriesProducts struct {
 	// ProductId 商品ID
 	ProductId string `json:"product_id"`
 
