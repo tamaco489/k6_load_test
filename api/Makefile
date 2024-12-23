@@ -90,3 +90,12 @@ create-reservations:
 		-H 'accept: application/json' \
 		-H 'Content-Type: application/json' \
 		-d '[{"product_id": 10001001, "quantity": 2}, {"product_id": 10001002, "quantity": 3}]' | jq .
+
+# 注文系API
+.PHONY: create-charge
+create-charge:
+	curl -i -sX 'POST' \
+		'http://localhost:8080/jester/v1/payments/charges' \
+		-H 'accept: */*' \
+		-H 'Content-Type: application/json' \
+		-d '{"reservation_id": "9f9213b2-9687-6910-d2ec-3a247582be2d"}'
