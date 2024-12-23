@@ -290,6 +290,31 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v1/payments/charges:
+    post:
+      tags:
+        - v1
+        - payments/charges
+      summary: Create new charge
+      description: |-
+        新しい支払い（チャージ）を登録します。
+        必要に応じて、支払いに関連するトークンや金額をリクエストボディに含めます。
+      operationId: createCharge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChargeRequest'
+      responses:
+        '204':
+          description: 支払いの作成に成功しました。
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     bearerAuth:
@@ -645,6 +670,15 @@ components:
         reservation_id:
           type: string
           description: 作成された予約の一意なID
+          example: 9f9213b2-9687-6910-d2ec-3a247582be2d
+    CreateChargeRequest:
+      type: object
+      required:
+        - reservation_id
+      properties:
+        reservation_id:
+          type: string
+          description: 注文を実行するための予約ID。予約APIで生成された一意のID。
           example: 9f9213b2-9687-6910-d2ec-3a247582be2d
   responses:
     BadRequest:

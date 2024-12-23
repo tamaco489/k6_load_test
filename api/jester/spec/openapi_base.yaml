@@ -64,3 +64,6 @@ paths:
   /v1/payments/reservations:
     $ref: './api/v1/payments/paths/Reservation.yaml'
 
+  # 注文系API
+  /v1/payments/charges:
+    $ref: './api/v1/payments/paths/Charge.yaml'

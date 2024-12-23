@@ -32,6 +32,12 @@ type Addresses struct {
 	ZipCode string `json:"zip_code"`
 }
 
+// CreateChargeRequest defines model for CreateChargeRequest.
+type CreateChargeRequest struct {
+	// ReservationId 注文を実行するための予約ID。予約APIで生成された一意のID。
+	ReservationId string `json:"reservation_id"`
+}
+
 // CreateCreditCard defines model for CreateCreditCard.
 type CreateCreditCard struct {
 	// IsDefault 登録するカードをデフォルトとして設定するか
@@ -223,6 +229,9 @@ type GetProductsParams struct {
 
 // CreateCreditCardJSONRequestBody defines body for CreateCreditCard for application/json ContentType.
 type CreateCreditCardJSONRequestBody = CreateCreditCard
+
+// CreateChargeJSONRequestBody defines body for CreateCharge for application/json ContentType.
+type CreateChargeJSONRequestBody = CreateChargeRequest
 
 // CreateReservationJSONRequestBody defines body for CreateReservation for application/json ContentType.
 type CreateReservationJSONRequestBody = ReservationRequest
