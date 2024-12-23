@@ -27,6 +27,9 @@ type ServerInterface interface {
 	// Create new credit card
 	// (POST /v1/payments/cards)
 	CreateCreditCard(c *gin.Context)
+	// Create new reservation
+	// (POST /v1/payments/reservations)
+	CreateReservation(c *gin.Context)
 	// Get list of products
 	// (GET /v1/products)
 	GetProducts(c *gin.Context, params GetProductsParams)
@@ -112,6 +115,21 @@ func (siw *ServerInterfaceWrapper) CreateCreditCard(c *gin.Context) {
 	}
 
 	siw.Handler.CreateCreditCard(c)
+}
+
+// CreateReservation operation middleware
+func (siw *ServerInterfaceWrapper) CreateReservation(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateReservation(c)
 }
 
 // GetProducts operation middleware
@@ -267,6 +285,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.DELETE(options.BaseURL+"/v1/payments/cards", wrapper.DeleteCreditCard)
 	router.GET(options.BaseURL+"/v1/payments/cards", wrapper.GetCreditCards)
 	router.POST(options.BaseURL+"/v1/payments/cards", wrapper.CreateCreditCard)
+	router.POST(options.BaseURL+"/v1/payments/reservations", wrapper.CreateReservation)
 	router.GET(options.BaseURL+"/v1/products", wrapper.GetProducts)
 	router.GET(options.BaseURL+"/v1/products/:productID", wrapper.GetProductByID)
 	router.POST(options.BaseURL+"/v1/users", wrapper.CreateUser)
@@ -422,6 +441,44 @@ func (response CreateCreditCard401Response) VisitCreateCreditCardResponse(w http
 type CreateCreditCard500Response = InternalServerErrorResponse
 
 func (response CreateCreditCard500Response) VisitCreateCreditCardResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type CreateReservationRequestObject struct {
+	Body *CreateReservationJSONRequestBody
+}
+
+type CreateReservationResponseObject interface {
+	VisitCreateReservationResponse(w http.ResponseWriter) error
+}
+
+type CreateReservation201JSONResponse ReservationResponse
+
+func (response CreateReservation201JSONResponse) VisitCreateReservationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateReservation400Response = BadRequestResponse
+
+func (response CreateReservation400Response) VisitCreateReservationResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type CreateReservation401Response = UnauthorizedResponse
+
+func (response CreateReservation401Response) VisitCreateReservationResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type CreateReservation500Response = InternalServerErrorResponse
+
+func (response CreateReservation500Response) VisitCreateReservationResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
@@ -672,6 +729,9 @@ type StrictServerInterface interface {
 	// Create new credit card
 	// (POST /v1/payments/cards)
 	CreateCreditCard(ctx *gin.Context, request CreateCreditCardRequestObject) (CreateCreditCardResponseObject, error)
+	// Create new reservation
+	// (POST /v1/payments/reservations)
+	CreateReservation(ctx *gin.Context, request CreateReservationRequestObject) (CreateReservationResponseObject, error)
 	// Get list of products
 	// (GET /v1/products)
 	GetProducts(ctx *gin.Context, request GetProductsRequestObject) (GetProductsResponseObject, error)
@@ -805,6 +865,39 @@ func (sh *strictHandler) CreateCreditCard(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(CreateCreditCardResponseObject); ok {
 		if err := validResponse.VisitCreateCreditCardResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateReservation operation middleware
+func (sh *strictHandler) CreateReservation(ctx *gin.Context) {
+	var request CreateReservationRequestObject
+
+	var body CreateReservationJSONRequestBody
+	if err := ctx.ShouldBind(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateReservation(ctx, request.(CreateReservationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateReservation")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CreateReservationResponseObject); ok {
+		if err := validResponse.VisitCreateReservationResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
