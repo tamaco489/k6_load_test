@@ -315,6 +315,50 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v1/payments/charges/histories:
+    get:
+      tags:
+        - v1
+        - payments/charges
+      summary: Get list of charge histories
+      description: 以前の注文（チャージ）の履歴情報を取得します。
+      operationId: getChargeHistories
+      parameters:
+        - name: offset
+          in: query
+          description: |
+            取得を開始する注文のインデックス。最初のページは0を指定。
+            オフセットは0から始め、次のページのデータを取得する際にはページサイズ（`limit`）を加算していきます。
+          required: false
+          schema:
+            type: integer
+            example: 0
+            default: 0
+        - name: limit
+          in: query
+          description: |
+            取得する注文履歴の数を指定。デフォルトは10、最大で20件まで指定可能。
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 10
+            default: 10
+            minimum: 1
+            maximum: 20
+      responses:
+        '200':
+          description: 注文履歴の取得に成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargeHistories'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     bearerAuth:
@@ -680,6 +724,98 @@ components:
           type: string
           description: 注文を実行するための予約ID。予約APIで生成された一意のID。
           example: 9f9213b2-9687-6910-d2ec-3a247582be2d
+    GetChargeHistoriesResponseProducts:
+      title: GetChargeHistoriesResponseProducts
+      type: object
+      description: 注文IDに紐づく商品のリスト
+      required:
+        - product_id
+        - product_name
+        - quantity
+        - unit_price
+      properties:
+        product_id:
+          type: string
+          description: 商品ID
+          example: '12345'
+        product_name:
+          type: string
+          description: 商品名
+          example: Sample Product
+        quantity:
+          type: integer
+          description: 商品の数量
+          example: 2
+        unit_price:
+          type: number
+          description: 商品1つあたりの価格
+          format: float
+          example: 1500
+    ChargeHistories:
+      title: ChargeHistories
+      type: object
+      description: 注文履歴のレスポンスオブジェクト
+      required:
+        - metadata
+        - histories
+      properties:
+        metadata:
+          type: object
+          description: ページネーションに関連するメタデータ
+          required:
+            - limit
+            - offset
+            - total_count
+            - has_more
+          properties:
+            limit:
+              type: integer
+              description: 1ページあたりのアイテム数
+              example: 10
+            offset:
+              type: integer
+              description: 現在のページの開始位置
+              example: 0
+            total_count:
+              type: integer
+              description: 履歴情報の総件数
+              example: 50
+            has_more:
+              type: boolean
+              description: 次のページが存在するかどうか
+              example: true
+          x-go-type-name: ChargeHistoriesLimitOffset
+        histories:
+          type: array
+          description: 注文履歴のリスト
+          items:
+            type: object
+            required:
+              - charge_id
+              - charge_amount
+              - charge_date
+              - products
+            properties:
+              charge_id:
+                type: string
+                description: 注文ID
+                example: 9f9213b2-9687-6910-d2ec-3a247582be2d
+              charge_amount:
+                type: number
+                description: 請求金額
+                format: float
+                example: 3000
+              charge_date:
+                type: string
+                description: 請求日時
+                format: date-time
+                example: '2024-12-24T12:00:00Z'
+              products:
+                type: array
+                description: 注文IDに紐づく商品のリスト
+                items:
+                  $ref: '#/components/schemas/GetChargeHistoriesResponseProducts'
+            x-go-type-name: ChargeHistoriesItem
   responses:
     BadRequest:
       description: Bad Request

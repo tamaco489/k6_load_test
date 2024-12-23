@@ -30,6 +30,9 @@ type ServerInterface interface {
 	// Create new charge
 	// (POST /v1/payments/charges)
 	CreateCharge(c *gin.Context)
+	// Get list of charge histories
+	// (GET /v1/payments/charges/histories)
+	GetChargeHistories(c *gin.Context, params GetChargeHistoriesParams)
 	// Create new reservation
 	// (POST /v1/payments/reservations)
 	CreateReservation(c *gin.Context)
@@ -133,6 +136,42 @@ func (siw *ServerInterfaceWrapper) CreateCharge(c *gin.Context) {
 	}
 
 	siw.Handler.CreateCharge(c)
+}
+
+// GetChargeHistories operation middleware
+func (siw *ServerInterfaceWrapper) GetChargeHistories(c *gin.Context) {
+
+	var err error
+
+	c.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetChargeHistoriesParams
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", c.Request.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter offset: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetChargeHistories(c, params)
 }
 
 // CreateReservation operation middleware
@@ -304,6 +343,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/v1/payments/cards", wrapper.GetCreditCards)
 	router.POST(options.BaseURL+"/v1/payments/cards", wrapper.CreateCreditCard)
 	router.POST(options.BaseURL+"/v1/payments/charges", wrapper.CreateCharge)
+	router.GET(options.BaseURL+"/v1/payments/charges/histories", wrapper.GetChargeHistories)
 	router.POST(options.BaseURL+"/v1/payments/reservations", wrapper.CreateReservation)
 	router.GET(options.BaseURL+"/v1/products", wrapper.GetProducts)
 	router.GET(options.BaseURL+"/v1/products/:productID", wrapper.GetProductByID)
@@ -497,6 +537,44 @@ func (response CreateCharge401Response) VisitCreateChargeResponse(w http.Respons
 type CreateCharge500Response = InternalServerErrorResponse
 
 func (response CreateCharge500Response) VisitCreateChargeResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GetChargeHistoriesRequestObject struct {
+	Params GetChargeHistoriesParams
+}
+
+type GetChargeHistoriesResponseObject interface {
+	VisitGetChargeHistoriesResponse(w http.ResponseWriter) error
+}
+
+type GetChargeHistories200JSONResponse ChargeHistories
+
+func (response GetChargeHistories200JSONResponse) VisitGetChargeHistoriesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetChargeHistories400Response = BadRequestResponse
+
+func (response GetChargeHistories400Response) VisitGetChargeHistoriesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GetChargeHistories401Response = UnauthorizedResponse
+
+func (response GetChargeHistories401Response) VisitGetChargeHistoriesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetChargeHistories500Response = InternalServerErrorResponse
+
+func (response GetChargeHistories500Response) VisitGetChargeHistoriesResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
@@ -788,6 +866,9 @@ type StrictServerInterface interface {
 	// Create new charge
 	// (POST /v1/payments/charges)
 	CreateCharge(ctx *gin.Context, request CreateChargeRequestObject) (CreateChargeResponseObject, error)
+	// Get list of charge histories
+	// (GET /v1/payments/charges/histories)
+	GetChargeHistories(ctx *gin.Context, request GetChargeHistoriesRequestObject) (GetChargeHistoriesResponseObject, error)
 	// Create new reservation
 	// (POST /v1/payments/reservations)
 	CreateReservation(ctx *gin.Context, request CreateReservationRequestObject) (CreateReservationResponseObject, error)
@@ -957,6 +1038,33 @@ func (sh *strictHandler) CreateCharge(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(CreateChargeResponseObject); ok {
 		if err := validResponse.VisitCreateChargeResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetChargeHistories operation middleware
+func (sh *strictHandler) GetChargeHistories(ctx *gin.Context, params GetChargeHistoriesParams) {
+	var request GetChargeHistoriesRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetChargeHistories(ctx, request.(GetChargeHistoriesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetChargeHistories")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetChargeHistoriesResponseObject); ok {
+		if err := validResponse.VisitGetChargeHistoriesResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

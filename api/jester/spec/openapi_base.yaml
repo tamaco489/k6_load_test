@@ -67,3 +67,5 @@ paths:
   # 注文系API
   /v1/payments/charges:
     $ref: './api/v1/payments/paths/Charge.yaml'
+  /v1/payments/charges/histories:
+    $ref: './api/v1/payments/paths/ChargeHistories.yaml'

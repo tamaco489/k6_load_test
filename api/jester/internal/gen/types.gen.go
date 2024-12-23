@@ -4,6 +4,8 @@
 package gen
 
 import (
+	"time"
+
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -32,6 +34,45 @@ type Addresses struct {
 	ZipCode string `json:"zip_code"`
 }
 
+// ChargeHistories 注文履歴のレスポンスオブジェクト
+type ChargeHistories struct {
+	// Histories 注文履歴のリスト
+	Histories []ChargeHistoriesItem `json:"histories"`
+
+	// Metadata ページネーションに関連するメタデータ
+	Metadata ChargeHistoriesLimitOffset `json:"metadata"`
+}
+
+// ChargeHistoriesItem defines model for .
+type ChargeHistoriesItem struct {
+	// ChargeAmount 請求金額
+	ChargeAmount float32 `json:"charge_amount"`
+
+	// ChargeDate 請求日時
+	ChargeDate time.Time `json:"charge_date"`
+
+	// ChargeId 注文ID
+	ChargeId string `json:"charge_id"`
+
+	// Products 注文IDに紐づく商品のリスト
+	Products []GetChargeHistoriesResponseProducts `json:"products"`
+}
+
+// ChargeHistoriesLimitOffset ページネーションに関連するメタデータ
+type ChargeHistoriesLimitOffset struct {
+	// HasMore 次のページが存在するかどうか
+	HasMore bool `json:"has_more"`
+
+	// Limit 1ページあたりのアイテム数
+	Limit int `json:"limit"`
+
+	// Offset 現在のページの開始位置
+	Offset int `json:"offset"`
+
+	// TotalCount 履歴情報の総件数
+	TotalCount int `json:"total_count"`
+}
+
 // CreateChargeRequest defines model for CreateChargeRequest.
 type CreateChargeRequest struct {
 	// ReservationId 注文を実行するための予約ID。予約APIで生成された一意のID。
@@ -52,6 +93,21 @@ type CreateCreditCard struct {
 type CreateUserResponse struct {
 	// UserId user_idを返却します。
 	UserId int64 `json:"user_id"`
+}
+
+// GetChargeHistoriesResponseProducts 注文IDに紐づく商品のリスト
+type GetChargeHistoriesResponseProducts struct {
+	// ProductId 商品ID
+	ProductId string `json:"product_id"`
+
+	// ProductName 商品名
+	ProductName string `json:"product_name"`
+
+	// Quantity 商品の数量
+	Quantity int `json:"quantity"`
+
+	// UnitPrice 商品1つあたりの価格
+	UnitPrice float32 `json:"unit_price"`
 }
 
 // GetCreditCards defines model for GetCreditCards.
@@ -214,6 +270,16 @@ type ReservationRequest = []struct {
 type ReservationResponse struct {
 	// ReservationId 作成された予約の一意なID
 	ReservationId string `json:"reservation_id"`
+}
+
+// GetChargeHistoriesParams defines parameters for GetChargeHistories.
+type GetChargeHistoriesParams struct {
+	// Offset 取得を開始する注文のインデックス。最初のページは0を指定。
+	// オフセットは0から始め、次のページのデータを取得する際にはページサイズ（`limit`）を加算していきます。
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
+
+	// Limit 取得する注文履歴の数を指定。デフォルトは10、最大で20件まで指定可能。
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // GetProductsParams defines parameters for GetProducts.
