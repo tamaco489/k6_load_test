@@ -63,7 +63,7 @@ get-product-by-id:
 		'http://localhost:8080/jester/v1/products/20001001' \
 		-H 'accept: application/json' | jq .
 
-# 決済系API
+# カード系API
 .PHONY: get-credit-cards create-credit-card delete-credit-card
 get-credit-cards:
 	curl -sX 'GET' \
@@ -81,3 +81,12 @@ delete-credit-card:
 	curl -i -sX 'DELETE' \
 		'http://localhost:8080/jester/v1/payments/cards' \
 		-H 'accept: */*'
+
+# 予約系API
+.PHONY: create-reservations
+create-reservations:
+	curl -sX 'POST' \
+		'http://localhost:8080/jester/v1/payments/reservations' \
+		-H 'accept: application/json' \
+		-H 'Content-Type: application/json' \
+		-d '[{"product_id": 10001001, "quantity": 2}, {"product_id": 10001002, "quantity": 3}]' | jq .

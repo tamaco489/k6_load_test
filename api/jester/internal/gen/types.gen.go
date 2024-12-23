@@ -195,6 +195,21 @@ type Profile struct {
 	Name     Name   `json:"name"`
 }
 
+// ReservationRequest 商品IDと個数のセット
+type ReservationRequest = []struct {
+	// ProductId 予約対象となる商品ID
+	ProductId int `json:"product_id"`
+
+	// Quantity 予約する商品の個数
+	Quantity int `json:"quantity"`
+}
+
+// ReservationResponse 予約作成のレスポンスオブジェクト
+type ReservationResponse struct {
+	// ReservationId 作成された予約の一意なID
+	ReservationId string `json:"reservation_id"`
+}
+
 // GetProductsParams defines parameters for GetProducts.
 type GetProductsParams struct {
 	// Cursor 次のページの商品情報一覧を取得するためのカーソル。
@@ -208,6 +223,9 @@ type GetProductsParams struct {
 
 // CreateCreditCardJSONRequestBody defines body for CreateCreditCard for application/json ContentType.
 type CreateCreditCardJSONRequestBody = CreateCreditCard
+
+// CreateReservationJSONRequestBody defines body for CreateReservation for application/json ContentType.
+type CreateReservationJSONRequestBody = ReservationRequest
 
 // CreateProfileJSONRequestBody defines body for CreateProfile for application/json ContentType.
 type CreateProfileJSONRequestBody = Profile

@@ -261,6 +261,35 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v1/payments/reservations:
+    post:
+      tags:
+        - v1
+        - payments/reservations
+      summary: Create new reservation
+      description: |
+        商品IDと個数を指定して、新しい予約を作成します。
+        作成された予約は、後続の注文APIで使用されます。
+      operationId: createReservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationRequest'
+      responses:
+        '201':
+          description: 予約の作成に成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     bearerAuth:
@@ -590,6 +619,33 @@ components:
           type: boolean
           description: 登録するカードをデフォルトとして設定するか
           example: true
+    ReservationRequest:
+      type: array
+      description: 商品IDと個数のセット
+      items:
+        required:
+          - product_id
+          - quantity
+        type: object
+        properties:
+          product_id:
+            type: integer
+            description: 予約対象となる商品ID
+            example: 10001001
+          quantity:
+            type: integer
+            description: 予約する商品の個数
+            example: 2
+    ReservationResponse:
+      type: object
+      description: 予約作成のレスポンスオブジェクト
+      required:
+        - reservation_id
+      properties:
+        reservation_id:
+          type: string
+          description: 作成された予約の一意なID
+          example: 9f9213b2-9687-6910-d2ec-3a247582be2d
   responses:
     BadRequest:
       description: Bad Request
