@@ -19,18 +19,10 @@ export const options = {
 };
 
 export default function () {
-  const url = 'http://shop-api:8080/shop/healthcheck';
-  const params = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
+  const BASE_URL = __ENV.SHOP_API_URL || 'http://localhost:8080';
+  const headers = { 'Content-Type': 'application/json' };
 
-  const res = http.get(url, params);
-
-  check(res, {
-    'status is 200': (r) => r.status === 200,
-  });
-
+  let res = http.get(`${BASE_URL}/shop/healthcheck`, { headers });
+  check(res, {'status is health': (r) => r.status === 200 });
   sleep(1);
 }
