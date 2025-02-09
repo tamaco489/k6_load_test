@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/tamaco489/k6_load_test/api/shop/internal/gen"
 )
@@ -54,6 +57,23 @@ func (c *Controllers) GetProducts(ctx *gin.Context, request gen.GetProductsReque
 			VipOnly:         false,
 			ImageUrl:        "https://example.com/images/20001002/product.jpg",
 		},
+	}
+
+	// ローカルな乱数ジェネレーターを作成
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	// 0, 1, 2 のどれかをランダムに選択
+	pattern := r.Intn(3)
+
+	switch pattern {
+	case 1:
+		metadata = gen.ProductNextCursor{NextCursor: ""}
+		products = products[:1]
+	case 2:
+		metadata = gen.ProductNextCursor{NextCursor: ""}
+		products = []gen.GetProducts{}
+	default:
+		// 何もせずそのまま返す
 	}
 
 	return gen.GetProducts200JSONResponse{
