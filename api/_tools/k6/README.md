@@ -84,9 +84,8 @@ make k6-run-test
 
 ---
 
-
-
 ```bash
+# シナリオに基づいた負荷テストを実行
 docker run --rm \
         -e SHOP_API_URL="http://localhost:8080" \
         -e SCRIPT_PATH="/k6/src/scenarios/scenario1_user_purchase_flow/main.ts" \
@@ -113,6 +112,8 @@ default   [   2% ] 01/10 VUs  01.0s/45.0s
 
 running (0m02.0s), 02/10 VUs, 0 complete and 0 interrupted iterations
 default   [   4% ] 02/10 VUs  02.0s/45.0s
+
+# 省略
 
 running (0m59.0s), 01/10 VUs, 26 complete and 0 interrupted iterations
 default ↓ [ 100% ] 06/10 VUs  45s
