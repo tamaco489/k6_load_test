@@ -1,11 +1,11 @@
 services:
-  jester-api:
+  shop-api:
     platform: linux/amd64
     image: cosmtrek/air:v1.61.0
-    container_name: jester-api
-    working_dir: /go/src/github.com/tamaco489/k6_load_test/api/jester
+    container_name: shop-api
+    working_dir: /go/src/github.com/tamaco489/k6_load_test/api/shop
     volumes:
-      - ./jester:/go/src/github.com/tamaco489/k6_load_test/api/jester
+      - ./shop:/go/src/github.com/tamaco489/k6_load_test/api/shop
       - ~/.cache/go-build:/root/.cache/go-build
     ports:
       - "8080:8080"
