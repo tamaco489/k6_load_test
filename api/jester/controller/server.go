@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/tamaco489/k6_load_test/api/jester/internal/gen"
-	"github.com/tamaco489/k6_load_test/api/jester/internal/library/logger"
+	"github.com/tamaco489/k6_load_test/api/shop/internal/gen"
+	"github.com/tamaco489/k6_load_test/api/shop/internal/library/logger"
 )
 
-func NewHJesterAPIServer() (*http.Server, error) {
+func NewHShopAPIServer() (*http.Server, error) {
 
 	// CORSの設定
 	cnf := cors.DefaultConfig()
@@ -36,7 +36,7 @@ func NewHJesterAPIServer() (*http.Server, error) {
 		r,
 		strictServer,
 		gen.GinServerOptions{
-			BaseURL:     "/jester/",
+			BaseURL:     "/shop/",
 			Middlewares: []gen.MiddlewareFunc{},
 			ErrorHandler: func(ctx *gin.Context, err error, i int) {
 				_ = ctx.Error(err)

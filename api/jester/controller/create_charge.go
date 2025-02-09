@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tamaco489/k6_load_test/api/jester/internal/gen"
+	"github.com/tamaco489/k6_load_test/api/shop/internal/gen"
 )
 
 func (c *Controllers) CreateCharge(ctx *gin.Context, request gen.CreateChargeRequestObject) (gen.CreateChargeResponseObject, error) {

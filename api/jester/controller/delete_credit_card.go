@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tamaco489/k6_load_test/api/jester/internal/gen"
+	"github.com/tamaco489/k6_load_test/api/shop/internal/gen"
 )
 
 func (c *Controllers) DeleteCreditCard(ctx *gin.Context, request gen.DeleteCreditCardRequestObject) (gen.DeleteCreditCardResponseObject, error) {

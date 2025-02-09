@@ -1,4 +1,4 @@
-module github.com/tamaco489/k6_load_test/api/jester
+module github.com/tamaco489/k6_load_test/api/shop
 
 go 1.23.1
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oapi-codegen/runtime/types"
-	"github.com/tamaco489/k6_load_test/api/jester/internal/gen"
+	"github.com/tamaco489/k6_load_test/api/shop/internal/gen"
 )
 
 func (c *Controllers) GetProfileMe(ctx *gin.Context, request gen.GetProfileMeRequestObject) (gen.GetProfileMeResponseObject, error) {
@@ -20,7 +20,7 @@ func (c *Controllers) GetProfileMe(ctx *gin.Context, request gen.GetProfileMeReq
 			Other:      "15番1号",
 		},
 		Birthdate: types.Date{Time: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)},
-		ImageUrl:  "https://s3.amazonaws.com/jester-images/profile/10001001/sr56gsad4hs5244gfs2456.jpg",
+		ImageUrl:  "https://s3.amazonaws.com/shop-images/profile/10001001/sr56gsad4hs5244gfs2456.jpg",
 		Name: gen.Name{
 			FirstName:      "世一",
 			FirstNameRoman: "Yoichi",

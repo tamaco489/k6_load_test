@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/tamaco489/k6_load_test/api/jester/internal/gen"
+	"github.com/tamaco489/k6_load_test/api/shop/internal/gen"
 )
 
 func (c *Controllers) GetMe(ctx *gin.Context, request gen.GetMeRequestObject) (gen.GetMeResponseObject, error) {
