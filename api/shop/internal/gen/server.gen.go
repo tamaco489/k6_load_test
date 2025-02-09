@@ -18,6 +18,12 @@ type ServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(c *gin.Context)
+	// Delete payment customer
+	// (DELETE /v1/payment/customers)
+	DeleteCustomer(c *gin.Context)
+	// Create new payment customer
+	// (POST /v1/payment/customers)
+	CreateCustomer(c *gin.Context)
 	// Get payment customer details
 	// (GET /v1/payment/customers/{userID})
 	GetCustomerByUserID(c *gin.Context, userID int64)
@@ -79,6 +85,36 @@ func (siw *ServerInterfaceWrapper) Healthcheck(c *gin.Context) {
 	}
 
 	siw.Handler.Healthcheck(c)
+}
+
+// DeleteCustomer operation middleware
+func (siw *ServerInterfaceWrapper) DeleteCustomer(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteCustomer(c)
+}
+
+// CreateCustomer operation middleware
+func (siw *ServerInterfaceWrapper) CreateCustomer(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateCustomer(c)
 }
 
 // GetCustomerByUserID operation middleware
@@ -368,6 +404,8 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/healthcheck", wrapper.Healthcheck)
+	router.DELETE(options.BaseURL+"/v1/payment/customers", wrapper.DeleteCustomer)
+	router.POST(options.BaseURL+"/v1/payment/customers", wrapper.CreateCustomer)
 	router.GET(options.BaseURL+"/v1/payment/customers/:userID", wrapper.GetCustomerByUserID)
 	router.DELETE(options.BaseURL+"/v1/payments/cards", wrapper.DeleteCreditCard)
 	router.GET(options.BaseURL+"/v1/payments/cards", wrapper.GetCreditCards)
@@ -415,6 +453,93 @@ func (response Healthcheck200JSONResponse) VisitHealthcheckResponse(w http.Respo
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteCustomerRequestObject struct {
+}
+
+type DeleteCustomerResponseObject interface {
+	VisitDeleteCustomerResponse(w http.ResponseWriter) error
+}
+
+type DeleteCustomer204Response struct {
+}
+
+func (response DeleteCustomer204Response) VisitDeleteCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteCustomer400Response = BadRequestResponse
+
+func (response DeleteCustomer400Response) VisitDeleteCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type DeleteCustomer401Response = UnauthorizedResponse
+
+func (response DeleteCustomer401Response) VisitDeleteCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type DeleteCustomer409Response = AlreadyExistsResponse
+
+func (response DeleteCustomer409Response) VisitDeleteCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(409)
+	return nil
+}
+
+type DeleteCustomer500Response = InternalServerErrorResponse
+
+func (response DeleteCustomer500Response) VisitDeleteCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type CreateCustomerRequestObject struct {
+}
+
+type CreateCustomerResponseObject interface {
+	VisitCreateCustomerResponse(w http.ResponseWriter) error
+}
+
+type CreateCustomer201JSONResponse CreateCustomerResponse
+
+func (response CreateCustomer201JSONResponse) VisitCreateCustomerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateCustomer400Response = BadRequestResponse
+
+func (response CreateCustomer400Response) VisitCreateCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type CreateCustomer401Response = UnauthorizedResponse
+
+func (response CreateCustomer401Response) VisitCreateCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type CreateCustomer409Response = AlreadyExistsResponse
+
+func (response CreateCustomer409Response) VisitCreateCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(409)
+	return nil
+}
+
+type CreateCustomer500Response = InternalServerErrorResponse
+
+func (response CreateCustomer500Response) VisitCreateCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
 }
 
 type GetCustomerByUserIDRequestObject struct {
@@ -929,6 +1054,12 @@ type StrictServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(ctx *gin.Context, request HealthcheckRequestObject) (HealthcheckResponseObject, error)
+	// Delete payment customer
+	// (DELETE /v1/payment/customers)
+	DeleteCustomer(ctx *gin.Context, request DeleteCustomerRequestObject) (DeleteCustomerResponseObject, error)
+	// Create new payment customer
+	// (POST /v1/payment/customers)
+	CreateCustomer(ctx *gin.Context, request CreateCustomerRequestObject) (CreateCustomerResponseObject, error)
 	// Get payment customer details
 	// (GET /v1/payment/customers/{userID})
 	GetCustomerByUserID(ctx *gin.Context, request GetCustomerByUserIDRequestObject) (GetCustomerByUserIDResponseObject, error)
@@ -1000,6 +1131,56 @@ func (sh *strictHandler) Healthcheck(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(HealthcheckResponseObject); ok {
 		if err := validResponse.VisitHealthcheckResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteCustomer operation middleware
+func (sh *strictHandler) DeleteCustomer(ctx *gin.Context) {
+	var request DeleteCustomerRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteCustomer(ctx, request.(DeleteCustomerRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteCustomer")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(DeleteCustomerResponseObject); ok {
+		if err := validResponse.VisitDeleteCustomerResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateCustomer operation middleware
+func (sh *strictHandler) CreateCustomer(ctx *gin.Context) {
+	var request CreateCustomerRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateCustomer(ctx, request.(CreateCustomerRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateCustomer")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CreateCustomerResponseObject); ok {
+		if err := validResponse.VisitCreateCustomerResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

@@ -89,6 +89,12 @@ type CreateCreditCard struct {
 	Token string `json:"token"`
 }
 
+// CreateCustomerResponse defines model for CreateCustomerResponse.
+type CreateCustomerResponse struct {
+	// Id 顧客ID
+	Id string `json:"id"`
+}
+
 // CreateUserResponse ユーザ新規登録APIのレスポンス
 type CreateUserResponse struct {
 	// UserId user_idを返却します。

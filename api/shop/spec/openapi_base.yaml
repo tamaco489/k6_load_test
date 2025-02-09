@@ -59,8 +59,8 @@ paths:
   # 外部決済サービス向け顧客情報系API
   /v1/payment/customers/{userID}:
     $ref: './api/v1/payments/paths/CustomerByUserID.yaml'
-  # /v1/payment/customers:
-    # $ref: './api/v1/payment/Customer.yaml'
+  /v1/payment/customers:
+    $ref: './api/v1/payments/paths/Customers.yaml'
 
   # クレジットカード系API
   /v1/payments/cards:

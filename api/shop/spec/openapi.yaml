@@ -231,6 +231,47 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v1/payment/customers:
+    post:
+      tags:
+        - v1
+        - payments/customer
+      summary: Create new payment customer
+      description: 外部決済サービスにアカウント登録を行います。
+      operationId: createCustomer
+      responses:
+        '201':
+          description: 外部決済サービスのアカウント登録が成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/AlreadyExists'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - v1
+        - payments/customer
+      summary: Delete payment customer
+      description: 外部決済サービスにアカウント削除を行います。
+      operationId: deleteCustomer
+      responses:
+        '204':
+          description: 外部決済サービスのアカウント削除が成功しました。
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/AlreadyExists'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v1/payments/cards:
     get:
       tags:
@@ -688,6 +729,15 @@ components:
           description: 商品イメージのURL
           example: https://example.com/images/10001001/product.jpg
     CustomerByUserID:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: 顧客ID
+          example: xyz12345
+    CreateCustomerResponse:
       type: object
       required:
         - id
