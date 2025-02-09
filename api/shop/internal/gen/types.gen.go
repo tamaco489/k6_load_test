@@ -89,10 +89,22 @@ type CreateCreditCard struct {
 	Token string `json:"token"`
 }
 
+// CreateCustomerResponse defines model for CreateCustomerResponse.
+type CreateCustomerResponse struct {
+	// Id 顧客ID
+	Id string `json:"id"`
+}
+
 // CreateUserResponse ユーザ新規登録APIのレスポンス
 type CreateUserResponse struct {
 	// UserId user_idを返却します。
 	UserId int64 `json:"user_id"`
+}
+
+// CustomerByUserID defines model for CustomerByUserID.
+type CustomerByUserID struct {
+	// Id 顧客ID
+	Id string `json:"id"`
 }
 
 // GetChargeHistoriesProducts 注文IDに紐づく商品のリスト
@@ -149,8 +161,8 @@ type Name struct {
 	LastNameRoman string `json:"last_name_roman"`
 }
 
-// Product defines model for Product.
-type Product struct {
+// ProductByID defines model for ProductByID.
+type ProductByID struct {
 	// CategoryId カテゴリID
 	CategoryId int32 `json:"category_id"`
 

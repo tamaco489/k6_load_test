@@ -63,6 +63,24 @@ get-product-by-id:
 		'http://localhost:8080/shop/v1/products/20001001' \
 		-H 'accept: application/json' | jq .
 
+# 外部決済サービス向け顧客情報系API
+.PHONY: get-customer create-customer delete-customer
+get-customer:
+	curl -sX 'GET' \
+		'http://localhost:8080/shop/v1/payment/customers/10001001' \
+		-H 'accept: application/json' | jq .
+
+create-customer:
+	curl -i -sX 'POST' \
+		'http://localhost:8080/shop/v1/payment/customers' \
+		-H 'accept: application/json' \
+		-d ''
+
+delete-customer:
+	curl -i -sX 'DELETE' \
+		'http://localhost:8080/shop/v1/payment/customers' \
+		-H 'accept: */*'
+
 # カード系API
 .PHONY: get-credit-cards create-credit-card delete-credit-card
 get-credit-cards:
@@ -122,4 +140,7 @@ api-all-request: healthcheck sleep \
 	delete-credit-card sleep \
 	create-reservations sleep \
 	create-charge sleep \
-	get-charge-histories
+	get-charge-histories \
+	get-customer \
+	create-customer \
+	delete-customer
