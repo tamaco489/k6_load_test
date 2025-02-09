@@ -19,7 +19,7 @@ export const options = {
 };
 
 export default function () {
-  const url = 'http://jester-api:8080/jester/healthcheck';
+  const url = 'http://shop-api:8080/shop/healthcheck';
   const params = {
     headers: {
       'Content-Type': 'application/json',

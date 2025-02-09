@@ -30,4 +30,4 @@ go.work
 .env
 tmp
 *txt
-jester_api
+shop_api

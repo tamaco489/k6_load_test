@@ -4,8 +4,8 @@ tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  bin = "./build/jester_api"
-  cmd = "go build -o ./build/jester_api ./cmd/main.go"
+  bin = "./build/shop_api"
+  cmd = "go build -o ./build/shop_api ./cmd/main.go"
   delay = 3
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []

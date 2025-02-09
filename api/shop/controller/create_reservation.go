@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/tamaco489/k6_load_test/api/jester/internal/gen"
+	"github.com/tamaco489/k6_load_test/api/shop/internal/gen"
 )
 
 // CreateReservation: 予約作成APIは商品情報等をひとまとめにして、ランダムなUUIDを生成する。

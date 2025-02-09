@@ -10,13 +10,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tamaco489/k6_load_test/api/jester/controller"
+	"github.com/tamaco489/k6_load_test/api/shop/controller"
 )
 
 func main() {
 	ctx := context.Background()
 
-	server, err := controller.NewHJesterAPIServer()
+	server, err := controller.NewHShopAPIServer()
 	if err != nil {
 		panic(err)
 	}

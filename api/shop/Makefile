@@ -31,10 +31,10 @@ deps:
 	go mod download && go mod tidy
 
 build: deps
-	go build -o build/jester_api cmd/main.go
+	go build -o build/shop_api cmd/main.go
 
 run: build
-	./build/jester_api
+	./build/shop_api
 
 
 # =================================================================
@@ -42,10 +42,10 @@ run: build
 # =================================================================
 .PHONY: up down logs
 up:
-	docker compose up -d jester-api
+	docker compose up -d shop-api
 
 down:
-	docker compose down jester-api
+	docker compose down shop-api
 
 logs:
-	docker compose logs -f jester-api
+	docker compose logs -f shop-api
