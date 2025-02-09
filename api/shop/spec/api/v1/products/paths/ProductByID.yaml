@@ -22,7 +22,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../schemas/Product.yaml'
+            $ref: '../schemas/ProductByID.yaml'
     '400':
       $ref: '../../../responses/BadRequest.yaml'
     '401':
