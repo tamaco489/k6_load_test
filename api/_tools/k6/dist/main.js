@@ -19,7 +19,7 @@ exports.options = {
     ],
 };
 function default_1() {
-    var url = 'http://jester-api:8080/jester/healthcheck';
+    var url = 'http://shop-api:8080/shop/healthcheck';
     var params = {
         headers: {
             'Content-Type': 'application/json',
