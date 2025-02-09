@@ -189,7 +189,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/ProductByID'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v1/payment/customers/{userID}:
+    get:
+      tags:
+        - v1
+        - payments/customer
+      summary: Get payment customer details
+      description: 外部決済サービス向け顧客IDを取得します。
+      operationId: getCustomerByUserID
+      parameters:
+        - name: userID
+          in: path
+          description: ユーザID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 10001001
+            minimum: 1
+      responses:
+        '200':
+          description: 外部決済サービス向け顧客IDの取得に成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerByUserID'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -579,7 +612,7 @@ components:
               description: 次ページへのカーソル
               example: MjAwMDI5OTA=
           x-go-type-name: ProductNextCursor
-    Product:
+    ProductByID:
       type: object
       required:
         - id
@@ -654,6 +687,15 @@ components:
           type: string
           description: 商品イメージのURL
           example: https://example.com/images/10001001/product.jpg
+    CustomerByUserID:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: 顧客ID
+          example: xyz12345
     GetCreditCards:
       title: CreditCardList
       type: array

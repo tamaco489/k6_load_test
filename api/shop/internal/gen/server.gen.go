@@ -18,6 +18,9 @@ type ServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(c *gin.Context)
+	// Get payment customer details
+	// (GET /v1/payment/customers/{userID})
+	GetCustomerByUserID(c *gin.Context, userID int64)
 	// Delete credit card
 	// (DELETE /v1/payments/cards)
 	DeleteCreditCard(c *gin.Context)
@@ -76,6 +79,32 @@ func (siw *ServerInterfaceWrapper) Healthcheck(c *gin.Context) {
 	}
 
 	siw.Handler.Healthcheck(c)
+}
+
+// GetCustomerByUserID operation middleware
+func (siw *ServerInterfaceWrapper) GetCustomerByUserID(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "userID" -------------
+	var userID int64
+
+	err = runtime.BindStyledParameter("simple", false, "userID", c.Param("userID"), &userID)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userID: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetCustomerByUserID(c, userID)
 }
 
 // DeleteCreditCard operation middleware
@@ -339,6 +368,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/healthcheck", wrapper.Healthcheck)
+	router.GET(options.BaseURL+"/v1/payment/customers/:userID", wrapper.GetCustomerByUserID)
 	router.DELETE(options.BaseURL+"/v1/payments/cards", wrapper.DeleteCreditCard)
 	router.GET(options.BaseURL+"/v1/payments/cards", wrapper.GetCreditCards)
 	router.POST(options.BaseURL+"/v1/payments/cards", wrapper.CreateCreditCard)
@@ -385,6 +415,51 @@ func (response Healthcheck200JSONResponse) VisitHealthcheckResponse(w http.Respo
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type GetCustomerByUserIDRequestObject struct {
+	UserID int64 `json:"userID"`
+}
+
+type GetCustomerByUserIDResponseObject interface {
+	VisitGetCustomerByUserIDResponse(w http.ResponseWriter) error
+}
+
+type GetCustomerByUserID200JSONResponse CustomerByUserID
+
+func (response GetCustomerByUserID200JSONResponse) VisitGetCustomerByUserIDResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetCustomerByUserID400Response = BadRequestResponse
+
+func (response GetCustomerByUserID400Response) VisitGetCustomerByUserIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GetCustomerByUserID401Response = UnauthorizedResponse
+
+func (response GetCustomerByUserID401Response) VisitGetCustomerByUserIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetCustomerByUserID404Response = NotFoundResponse
+
+func (response GetCustomerByUserID404Response) VisitGetCustomerByUserIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetCustomerByUserID500Response = InternalServerErrorResponse
+
+func (response GetCustomerByUserID500Response) VisitGetCustomerByUserIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
 }
 
 type DeleteCreditCardRequestObject struct {
@@ -642,7 +717,7 @@ type GetProductByIDResponseObject interface {
 	VisitGetProductByIDResponse(w http.ResponseWriter) error
 }
 
-type GetProductByID200JSONResponse Product
+type GetProductByID200JSONResponse ProductByID
 
 func (response GetProductByID200JSONResponse) VisitGetProductByIDResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -854,6 +929,9 @@ type StrictServerInterface interface {
 	// Checks the health of API
 	// (GET /healthcheck)
 	Healthcheck(ctx *gin.Context, request HealthcheckRequestObject) (HealthcheckResponseObject, error)
+	// Get payment customer details
+	// (GET /v1/payment/customers/{userID})
+	GetCustomerByUserID(ctx *gin.Context, request GetCustomerByUserIDRequestObject) (GetCustomerByUserIDResponseObject, error)
 	// Delete credit card
 	// (DELETE /v1/payments/cards)
 	DeleteCreditCard(ctx *gin.Context, request DeleteCreditCardRequestObject) (DeleteCreditCardResponseObject, error)
@@ -922,6 +1000,33 @@ func (sh *strictHandler) Healthcheck(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(HealthcheckResponseObject); ok {
 		if err := validResponse.VisitHealthcheckResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetCustomerByUserID operation middleware
+func (sh *strictHandler) GetCustomerByUserID(ctx *gin.Context, userID int64) {
+	var request GetCustomerByUserIDRequestObject
+
+	request.UserID = userID
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetCustomerByUserID(ctx, request.(GetCustomerByUserIDRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetCustomerByUserID")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetCustomerByUserIDResponseObject); ok {
+		if err := validResponse.VisitGetCustomerByUserIDResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

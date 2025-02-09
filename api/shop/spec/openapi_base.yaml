@@ -56,6 +56,12 @@ paths:
   /v1/products/{productID}:
     $ref: './api/v1/products/paths/ProductByID.yaml'
 
+  # 外部決済サービス向け顧客情報系API
+  /v1/payment/customers/{userID}:
+    $ref: './api/v1/payments/paths/CustomerByUserID.yaml'
+  # /v1/payment/customers:
+    # $ref: './api/v1/payment/Customer.yaml'
+
   # クレジットカード系API
   /v1/payments/cards:
     $ref: './api/v1/payments/paths/CreditCard.yaml'
