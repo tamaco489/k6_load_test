@@ -1,0 +1,8 @@
+FROM grafana/k6:latest
+
+WORKDIR /k6
+
+COPY ./src /k6/src
+
+# SCRIPT_PATH: 各シナリオを定義したscriptのパスを外部から指定して実行できるようにする
+ENTRYPOINT ["sh", "-c", "k6 run --env SHOP_API_URL=${SHOP_API_URL} --compatibility-mode=experimental_enhanced ${SCRIPT_PATH}"]
