@@ -104,3 +104,22 @@ get-charge-histories:
 	curl -sX 'GET' \
 		'http://localhost:8080/shop/v1/payments/charges/histories?offset=0&limit=10' \
 		-H 'accept: application/json' | jq .
+
+# 管理用API
+.PHONY: api-all-request
+sleep:
+	@sleep 0.5
+
+api-all-request: healthcheck sleep \
+	create-user sleep \
+	get-me sleep \
+	create-profile sleep \
+	get-profile-me sleep \
+	get-products sleep \
+	get-product-by-id sleep \
+	get-credit-cards sleep \
+	create-credit-card sleep \
+	delete-credit-card sleep \
+	create-reservations sleep \
+	create-charge sleep \
+	get-charge-histories
