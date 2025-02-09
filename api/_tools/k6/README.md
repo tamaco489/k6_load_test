@@ -3,8 +3,8 @@
 ### 1. 実行環境整備
 
 ```bash
-$ pwd
-/<your-project>/k6_load_test/api
+$ cd api/_tools/k6 && pwd
+/<your-project>/k6_load_test/api/_tools/k6
 ```
 
 k6をTypeScriptで実行しているため、必要なモジュールをインストールする
@@ -15,22 +15,26 @@ npm -i
 ### 2. ディレクトリ構成
 
 ```bash
-$ tree -I "node_modules"
 .
+├── Makefile
 ├── README.md
-├── dist
-│   └── main.js
+├── build
+│   └── Dockerfile.k6
 ├── package-lock.json
 ├── package.json
 ├── src
-│   ├── @types
-│   ├── config
-│   ├── scenarios
-│   └── scripts
-│       └── main.ts
+│   ├── @types
+│   ├── config
+│   ├── scenarios
+│   │   ├── scenario1_user_purchase_flow
+│   │   │   └── main.ts
+│   │   └── scenario2_user_purchase_flow
+│   │       └── main.ts
+│   └── scripts
+│       └── main.ts
 └── tsconfig.json
 
-6 directories, 6 files
+8 directories, 9 files
 ```
 
 ### 3. 負荷テストを実行する
