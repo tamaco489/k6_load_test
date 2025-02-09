@@ -4,12 +4,12 @@ info:
   description: K6 Load Test API
   version: 1.0.0
 servers:
-  - url: http://localhost:{port}/jester/
+  - url: http://localhost:{port}/shop/
     description: dev
     variables:
       port:
         default: '8080'
-  - url: https://api.<domain-name>/jester/
+  - url: https://api.<domain-name>/shop/
     description: stg
 security:
   - bearerAuth: []
